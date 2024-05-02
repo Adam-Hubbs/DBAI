@@ -1,0 +1,13 @@
+Package: DBAI
+Title: OpenAI Tools for R Datasets
+Version: 0.0.0.9000
+Authors@R: 
+    person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Remotes: irudnyts/openai
+Depends: dplyr, assertthat
