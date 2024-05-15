@@ -1,10 +1,11 @@
 
-#' gpt
+#' @description A function to call OpenAI's GPT models
 #'
 #' @param source A source dataframe
 #' @param input A column name in the source dataframe
 #' @param output A string of a column name (Or a vetor of strings) to be created in the source dataframe.
-#' @param systemMessage A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the GPT model
+#' @param prompt A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the GPT model
+#' @param return_invisible A boolean to return just the output (TRUE) or an llm object containing model metadata (FALSE). Defaults to FALSE.
 #' @param model The OpenAI Model to be called
 #' @param temperature Temperature parameter for OpenAI's models
 #' @param top_p top_p parameter for OpenAI's models
@@ -15,55 +16,102 @@
 #' @export
 #'
 #' @examples
-#' #sample_df <- gpt(sample_df, input = "demo", output = "Vote", systemMessage = prompt, model = "gpt-3.5-turbo", max_tokens = 5)
+#' #sample_df <- gpt(sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = FALSE, temperature = 1, max_tokens = 5)
 gpt <- function(source,
                 input = "input",
                 output = "output",
-                systemMessage,
+                prompt,
                 model = "gpt-3.5-turbo",
+                return_invisible = c(FALSE, TRUE),
                 temperature = 1,
                 top_p = NULL,
                 max_tokens = 4096,  ...) {
 
 
   ### Validate Statements
+  match.arg(return_invisible, c(FALSE, TRUE), several.ok = FALSE)
   assertthat::assert_that(!is.null(source), msg = "Dataframe is null. Please provide a dataframe.")
   assertthat::assert_that(nrow(source) > 0, msg = "Dataframe is empty. Please provide a valid dataframe.")
   assertthat::assert_that(is.data.frame(source) || tibble::is_tibble(source), msg = "Input 'source' must be a dataframe or tibble.")
   assertthat::assert_that(is.character(model) && (length(model) == 1), msg = "Model must be text.")
 
 
+  llmObj <- NULL
+  ### Detect API Set
 
-  CallGPT <- function(input, output, systemMessage, model = model, temperature, n=1, max_tokens=4096, ...) {
+
+
+  ### Call to OpenAI Endpoint
+  request <- function(input = input, prompt = prompt, model = model, temperature = temperature, max_tokens = max_tokens, ...) {
+    openai::create_chat_completion(
+      model = model,
+      n = n,
+      max_tokens = max_tokens,
+      temperature = temperature,
+      messages = list(
+        list(
+          "role" = "system",
+          "content" = prompt
+        ),
+        list(
+          "role" = "user",
+          "content" = input
+        )
+      )
+    )
+  }
+
+  if(return_invisible == FALSE & is.null(llmObj)) {
+    raw_metadata <- request(input = source[[input]], prompt = prompt[1], model = model, temperature = temperature, max_tokens = max_tokens, ... = ...)
+    llmObj <- list(NULL, prompt, model, raw_metadata)
+  }
+
+
+  CallGPT <- function(input, output, prompt, model = model, temperature, n=1, max_tokens=4096, ...) {
     ### Do not quit if there are NA's, just return NA for those rows
+    ### In the future, do this check outside the CallGPT function. reutrn a vector of rows and use that in CallGPT so we can check all at the same time and vectorize that.
     if(is.na(input)) {
       warning("There are NA's in the input column. NA's introduced in the output.")
       return(NA)
+    } else if (input == "" | input == " ") {
+      warning("There are empty strings in the input column. Empty strings introduced in the output.")
+      return("")
     } else {
-      ### Call to OpenAI Endpoint
-      openai::create_chat_completion(
-        model = model,
-        n = n,
-        max_tokens = max_tokens,
-        temperature = temperature,
-        messages = list(
-          list(
-            "role" = "system",
-            "content" = systemMessage
-          ),
-          list(
-            "role" = "user",
-            "content" = input
-          )
-        )
-      )$choices$message.content
+        ### Call to OpenAI Endpoint
+        request(input, output, prompt, model = model, temperature, n=1, max_tokens=4096, ...)$choices$message.content
     }
   }
 
-  ### Loops Oupuut Columns to run Vectorized GPT Calls
-  for (h in c(1:length(systemMessage))) {
+  ### Loops Ouput Columns to run Vectorized GPT Calls
+  for (h in c(1:length(prompt))) {
     source <- source |>
-      dplyr::mutate(!!output[h] := lapply(source[[input]], CallGPT, systemMessage = systemMessage[h], model = model, temperature = temperature, max_tokens = max_tokens))
+      dplyr::mutate(!!output[h] := lapply(source[[input]], CallGPT, prompt = prompt[h], model = model, temperature = temperature, max_tokens = max_tokens))
   }
-  return(source)
+
+  ### Return Object or invisible
+  if(return_invisible == FALSE) {
+    llmObj[[1]] <- source
+    return(llmObj)
+  } else {
+    return(source)
+  }
 }
+
+
+### Update Github ReadME
+### Set other Github repos to private
+### Acknowledge other package creator and look at their license
+### Make it so it accepts matricies, dataframes, and tibbles, and other object types
+### Look at adding support for other models
+### Make it so the parameters are passed correctly
+### Meta-data Object
+### Documentation and Standardization update
+### More error checking and more usable error messages
+### Add Vingette and sample Data
+### List valid models
+
+
+
+# Check if meta-data object created
+# If not, run full call
+# If so, run regular

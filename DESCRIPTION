@@ -3,7 +3,7 @@ Title: OpenAI Tools for R Datasets
 Version: 0.0.0.9000
 Authors@R: 
     person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: R Wrapper for AI API's 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -11,6 +11,8 @@ RoxygenNote: 7.2.3
 Remotes: irudnyts/openai
 URL: https://github.com/Adam-Hubbs/DBAI
 BugReports: https://github.com/Adam-Hubbs/DBAI/issues
+Depends: 
+    R (>= 4.1.0)
 Imports: 
     assertthat (>= 0.2.1),
     dplyr (>= 1.0.0),
