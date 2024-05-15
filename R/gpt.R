@@ -1,11 +1,12 @@
 
-#' @description A function to call OpenAI's GPT models
+#' gpt
 #'
 #' @param source A source dataframe
 #' @param input A column name in the source dataframe
 #' @param output A string of a column name (Or a vetor of strings) to be created in the source dataframe.
 #' @param prompt A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the GPT model
 #' @param return_invisible A boolean to return just the output (TRUE) or an llm object containing model metadata (FALSE). Defaults to FALSE.
+#' @param n DEV ONLY. SUPPORT COMING SOON. Number of completions to generate
 #' @param model The OpenAI Model to be called
 #' @param temperature Temperature parameter for OpenAI's models
 #' @param top_p top_p parameter for OpenAI's models
@@ -23,13 +24,17 @@ gpt <- function(source,
                 prompt,
                 model = "gpt-3.5-turbo",
                 return_invisible = c(FALSE, TRUE),
+                n = 1,
                 temperature = 1,
                 top_p = NULL,
                 max_tokens = 4096,  ...) {
 
 
   ### Validate Statements
-  match.arg(return_invisible, c(FALSE, TRUE), several.ok = FALSE)
+  #match.arg(return_invisible, c(FALSE, TRUE), several.ok = FALSE)
+  if(is.null(return_invisible)) {
+    return_invisible <- FALSE
+  }
   assertthat::assert_that(!is.null(source), msg = "Dataframe is null. Please provide a dataframe.")
   assertthat::assert_that(nrow(source) > 0, msg = "Dataframe is empty. Please provide a valid dataframe.")
   assertthat::assert_that(is.data.frame(source) || tibble::is_tibble(source), msg = "Input 'source' must be a dataframe or tibble.")
