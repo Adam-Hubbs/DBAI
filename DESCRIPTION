@@ -1,6 +1,6 @@
 Package: DBAI
 Title: OpenAI Tools for R Datasets
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
     person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
 Description: R Wrapper for AI API's 
