@@ -8,8 +8,10 @@ gpt(
   source,
   input = "input",
   output = "output",
-  systemMessage,
+  prompt,
   model = "gpt-3.5-turbo",
+  return_invisible = c(FALSE, TRUE),
+  n = 1,
   temperature = 1,
   top_p = NULL,
   max_tokens = 4096,
@@ -23,9 +25,13 @@ gpt(
 
 \item{output}{A string of a column name (Or a vetor of strings) to be created in the source dataframe.}
 
-\item{systemMessage}{A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the GPT model}
+\item{prompt}{A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the GPT model}
 
 \item{model}{The OpenAI Model to be called}
+
+\item{return_invisible}{A boolean to return just the output (TRUE) or an llm object containing model metadata (FALSE). Defaults to FALSE.}
+
+\item{n}{DEV ONLY. SUPPORT COMING SOON. Number of completions to generate}
 
 \item{temperature}{Temperature parameter for OpenAI's models}
 
@@ -42,5 +48,5 @@ A dataframe with the output column(s) created
 gpt
 }
 \examples{
-#sample_df <- gpt(sample_df, input = "demo", output = "Vote", systemMessage = prompt, model = "gpt-3.5-turbo", max_tokens = 5)
+#sample_df <- gpt(sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = FALSE, temperature = 1, max_tokens = 5)
 }
