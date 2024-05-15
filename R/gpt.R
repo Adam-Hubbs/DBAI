@@ -31,7 +31,6 @@ gpt <- function(source,
 
 
   ### Validate Statements
-  #match.arg(return_invisible, c(FALSE, TRUE), several.ok = FALSE)
   if(is.null(return_invisible)) {
     return_invisible <- FALSE
   }
