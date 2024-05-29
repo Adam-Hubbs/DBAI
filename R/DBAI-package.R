@@ -3,8 +3,15 @@
 
 ## usethis namespace: start
 #' @importFrom dplyr mutate
-#' @importFrom openai create_chat_completion
 #' @importFrom rlang :=
-#' @importFrom tibble is_tibble
+#' @importFrom rlang sym
+#' @importFrom rlang !!
+#' @importFrom httr status_code
+#' @importFrom httr content
+#' @importFrom httr POST
+#' @importFrom httr add_headers
+#' @importFrom httr http_error
+#' @importFrom jsonlite fromJSON
+#' @importFrom jsonlite flatten
 ## usethis namespace: end
 NULL

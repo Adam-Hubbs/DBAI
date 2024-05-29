@@ -1,6 +1,6 @@
 Package: DBAI
 Title: OpenAI Tools for R Datasets
-Version: 0.0.0.9001
+Version: 0.0.0.9010
 Authors@R: 
     person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
 Description: R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, but support for other API's is coming soon.
@@ -8,14 +8,12 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
-Remotes: irudnyts/openai
 URL: https://github.com/Adam-Hubbs/DBAI
 BugReports: https://github.com/Adam-Hubbs/DBAI/issues
 Depends: 
     R (>= 4.1.0)
 Imports: 
-    assertthat (>= 0.2.1),
     dplyr (>= 1.0.0),
-    openai (>= 0.4.1),
     rlang,
-    tibble
+    httr,
+    jsonlite
