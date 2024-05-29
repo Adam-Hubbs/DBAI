@@ -13,5 +13,6 @@
 #' @importFrom httr http_error
 #' @importFrom jsonlite fromJSON
 #' @importFrom jsonlite flatten
+#' @importFrom progress progress_bar
 ## usethis namespace: end
 NULL

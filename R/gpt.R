@@ -5,7 +5,7 @@
 #' @param prompt required; A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the AI model.
 #' @param return_invisible optional; A boolean to return just the output (TRUE) or an llm object containing model metadata (FALSE). Defaults to `FALSE`.
 #' @param iterations DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to `1`.
-#' @param progress optional; a length one logical vector. Defaults to `FALSE`. If `TRUE`, a progress bar will be displayed.
+#' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console.
 #' @param model required; a length one character vector.
 #' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` and `2`.
 #' @param top_p optional; defaults to `1`; a length one numeric vector with the value between `0` and `1`.
@@ -32,18 +32,13 @@ gpt <- function(source,
                 frequency_penalty = 0,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
-                progress = FALSE) {
+                progress = TRUE) {
 
 
-  # Test TryCatch and figure out how to lapply, purr, or just base
-  # Add strict more were it stops on error instead of doing error handling?
   # Add progress bar functionality
-  # Have warning message about NA at end with number of NA's
-  #
-  # BUG. It is not passing some messages. Especially the first two
 
   ### Validate Statements
-  if(!is.logical(return_invisible)) {
+  if(!is.logical(return_invisible) || length(return_invisible) != 1 || is.na(return_invisible)) {
     stop("Return Invisible must be a boolean.")
   }
 
@@ -55,9 +50,6 @@ gpt <- function(source,
     stop("Dataframe is empty. Please provide a valid dataframe.")
   }
 
-  if(!is.character(model) || length(model) != 1) {
-    stop("Model must be a string.")
-  }
 
   if(is.null(input)) {
     stop("Input column is null. Please provide a column name you would like to use for the inputs to the model.")
@@ -85,12 +77,61 @@ gpt <- function(source,
     stop("Error: 'openai_api_key' must be a single value.")
   }
 
-  if(is.null(return_invisible)) {
-    return_invisible <- FALSE
+  if (is.null(model) || !is.character(model) || length(model) != 1 || is.na(model)) {
+    stop("Model must be a non-NA string.")
   }
 
-  ### Initialize List as NULL variables. Figure out how to allocate memory.
+  if (!is.numeric(temperature) || length(temperature) != 1 || is.na(temperature) || temperature < 0 || temperature > 2) {
+    stop("Temperature must be a number between 0 and 2.")
+  }
+
+  if (!is.numeric(top_p) || length(top_p) != 1 || is.na(top_p) || top_p < 0 || top_p > 1) {
+    stop("Top_p must be a number between 0 and 1.")
+  }
+
+  if (!is.null(temperature) && !is.null(top_p)) {
+    if(temperature != 1 || top_p != 1) {
+      warning("It is recommended NOT to specify temperature and top_p at the same time.")
+    }
+  }
+
+  if (!is.null(max_tokens) && (!is.numeric(max_tokens) || length(max_tokens) != 1 || is.na(max_tokens) || max_tokens <= 0 || max_tokens %% 1 != 0 || max_tokens > 4096)) {
+    stop("Max_tokens must be a positive integer.")
+  }
+
+  if (!is.numeric(presence_penalty) || length(presence_penalty) != 1 || is.na(presence_penalty) || presence_penalty < -2 || presence_penalty > 2) {
+    stop("Presence_penalty must be a number between -2 and 2.")
+  }
+
+  if (!is.numeric(frequency_penalty) || length(frequency_penalty) != 1 || is.na(frequency_penalty) || frequency_penalty < -2 || frequency_penalty > 2) {
+    stop("Frequency_penalty must be a number between -2 and 2.")
+  }
+
+  if (!is.null(openai_organization) && (!is.character(openai_organization) || length(openai_organization) != 1 || is.na(openai_organization))) {
+    stop("Openai_organization must be a non-NA string.")
+  }
+
+  if (is.null(iterations) || !is.numeric(iterations) || length(iterations) != 1 || is.na(iterations) || iterations <= 0 || iterations %% 1 != 0) {
+    stop("Iterations must be a positive integer.")
+  }
+
+  if (!is.logical(progress) || length(progress) != 1 || is.na(progress)) {
+    stop("Progress must be a boolean.")
+  }
+
   llmObj <- NULL
+
+  parentInfo <- new.env()
+  parentInfo$NACount <- 0
+  parentInfo$EmptyCount <- 0
+  parentInfo$http_error <- 0
+
+  if (progress == TRUE) {
+    parentInfo$pb <- progress::progress_bar$new(
+      total = nrow(source) * length(prompt) * iterations,
+      format = "[:bar] :current / :total :percent eta: :eta"
+    )
+  }
 
   ### Build skeleton
   base_url <- "https://api.openai.com/v1/chat/completions"
@@ -109,14 +150,9 @@ gpt <- function(source,
   body[["temperature"]] <- temperature
   body[["top_p"]] <- top_p
   body[["n"]] <- n
-  #body[["stream"]] <- stream
-  #body[["stop"]] <- stop
   body[["max_tokens"]] <- max_tokens
   body[["presence_penalty"]] <- presence_penalty
   body[["frequency_penalty"]] <- frequency_penalty
-  #body[["logit_bias"]] <- logit_bias
-  #body[["user"]] <- user
-
 
   completion <- function(input, prompt) {
 
@@ -130,7 +166,6 @@ gpt <- function(source,
         "content" = input
       )
     )
-
 
     response <- httr::POST(
       url = base_url,
@@ -165,13 +200,8 @@ gpt <- function(source,
     llmObj <- list(NULL, prompt, model, company, date, raw_metadata)
   }
 
-  parentInfo <- new.env()
-  parentInfo$NACount <- 0
-  parentInfo$EmptyCount <- 0
-  parentInfo$http_error <- 0
-
   CallGPT <- function(parentInfo, input, prompt) {
-
+    if(progress == TRUE) parentInfo$pb$tick()
     ### Do not quit if there are NA's, just return NA for those rows
     if(is.na(input)) {
       parentInfo$NACount <- parentInfo$NACount + 1
@@ -185,24 +215,26 @@ gpt <- function(source,
     }
   }
 
-  ### Loops Ouput Columns
-  for (h in c(1:length(prompt))) {
-    source <- source |>
-      dplyr::rowwise() |>
-      dplyr::mutate(!!output[h] := tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
-        message(paste("Error in argument:", input, "-", e$message))
-        return(NA)
-      })) |>
-      dplyr::ungroup()
+  for (iter in 1:iterations) {
+    for (h in seq_along(prompt)) {
+      outputcol <- paste0(output[h], "_", iter)
+      source <- source |>
+        dplyr::rowwise() |>
+        dplyr::mutate(!!outputcol := tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
+          message(paste("Invisible Error (returning NA for colum):", input, "-", e$message))
+          return(NA)
+        })) |>
+        dplyr::ungroup()
+    }
   }
 
 
   if(parentInfo$NACount > 0) {
-    warning(paste("There are", parentInfo$NACount, "missing values in the input column.", parentInfo$NACount, " NA's introduced in the output."))
+    warning(paste("There are", parentInfo$NACount, "missing values in the input column.", parentInfo$NACount, "NA's introduced in the output."))
   }
 
   if(parentInfo$EmptyCount > 0) {
-    warning(paste("There are", parentInfo$EmptyCount, "empty strings in the input column.", parentInfo$EmptyCount, " empty strings introduced in the output."))
+    warning(paste("There are", parentInfo$EmptyCount, "empty strings in the input column.", parentInfo$EmptyCount, "empty strings introduced in the output."))
   }
 
   if(parentInfo$http_error > 0) {
@@ -212,11 +244,9 @@ gpt <- function(source,
   ### Return Object or invisible
   if(return_invisible == FALSE) {
     llmObj[[1]] <- source
+    class(llmObj) <- "llm_return_object"
     return(llmObj)
   } else {
     return(source)
   }
-
 }
-
-

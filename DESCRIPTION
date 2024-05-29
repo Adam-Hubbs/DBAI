@@ -16,4 +16,5 @@ Imports:
     dplyr (>= 1.0.0),
     rlang,
     httr,
-    jsonlite
+    jsonlite,
+    progress
