@@ -1,4 +1,4 @@
-#' gpt
+#' gemini
 #' @param source required; A source dataframe
 #' @param input required; A column name in the source dataframe
 #' @param output optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to `output`.
@@ -13,11 +13,9 @@
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a length one numeric vector with the integer value greater than `0`.
 #' @param presence_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
 #' @param frequency_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
-#' @param openai_api_key required; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key.
-#' @param openai_organization optional; defaults to `NULL`; a length one character vector. Specifies OpenAI organization.
 #' @return A dataframe with the output column(s) created
 #' @export
-gpt <- function(source,
+gemini <- function(source,
                 input,
                 output = "output",
                 prompt,
@@ -30,8 +28,6 @@ gpt <- function(source,
                 max_tokens = 4096,
                 presence_penalty = 0,
                 frequency_penalty = 0,
-                openai_api_key = Sys.getenv("OPENAI_API_KEY"),
-                openai_organization = NULL,
                 progress = TRUE) {
 
 
@@ -210,8 +206,8 @@ gpt <- function(source,
       parentInfo$EmptyCount <- parentInfo$EmptyCount + 1
       return("")
     } else {
-        ### Call to OpenAI Endpoint
-        completion(input, prompt)$choices$message.content
+      ### Call to OpenAI Endpoint
+      completion(input, prompt)$choices$message.content
     }
   }
 

@@ -1,4 +1,4 @@
-#' gpt
+#' claude
 #' @param source required; A source dataframe
 #' @param input required; A column name in the source dataframe
 #' @param output optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to `output`.
@@ -7,35 +7,32 @@
 #' @param iterations DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to `1`.
 #' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console.
 #' @param model required; a length one character vector.
-#' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `2` (More creative).
-#' @param top_p optional; defaults to `1`; a length one numeric vector with the value between `0` and `1`.
-#' @param n optional; defaults to `1`; a length one numeric vector with the integer value greater than `0`.
+#' @param anthropic_version optional; defaults to `2023-06-01`; a length one character vector. Specifies the version of the Anthropic's models.
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a length one numeric vector with the integer value greater than `0`.
-#' @param presence_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
-#' @param frequency_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
-#' @param openai_api_key required; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key.
-#' @param openai_organization optional; defaults to `NULL`; a length one character vector. Specifies OpenAI organization.
+#' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `1` (More creative).
+#' @param top_k optional; a length one numeric vector with the integer value greater than `0`. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.
+#' @param top_p optional; a length one numeric vector with the value between `0` and `1`. Only specify a temperature or a top_p, never both. Not recommended, for most use cases use temperature instead.
+#' @param anthropic_api_key required; defaults to `Sys.getenv("ANTHROPIC_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies Anthropic API key.
 #' @return A dataframe with the output column(s) created
 #' @export
-gpt <- function(source,
+claude <- function(source,
                 input,
                 output = "output",
                 prompt,
                 return_invisible = FALSE,
                 iterations = 1,
-                model = "gpt-3.5-turbo",
+                model = "claude-3-haiku-20240307",
+                anthropic_version = "2023-06-01",
                 temperature = 1,
-                top_p = 1,
-                n = 1,
+                top_p = NULL,
                 max_tokens = 4096,
-                presence_penalty = 0,
-                frequency_penalty = 0,
-                openai_api_key = Sys.getenv("OPENAI_API_KEY"),
-                openai_organization = NULL,
+                top_k = NULL,
+                anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
                 progress = TRUE) {
 
 
-  # Add progress bar functionality
+  #Make argument and documentation order consistent. And make consistent between gpt and claude functions.
+
 
   ### Validate Statements
   if(!is.logical(return_invisible) || length(return_invisible) != 1 || is.na(return_invisible)) {
@@ -65,16 +62,16 @@ gpt <- function(source,
     stop("Prompt must be a string or vector of strings.")
   }
 
-  if(is.null(openai_api_key) || openai_api_key == "") {
-    stop("API Key not found. Please set the OPENAI_API_KEY environment variable.")
+  if(is.null(anthropic_api_key) || anthropic_api_key == "") {
+    stop("API Key not found. Please set the anthropic_API_KEY environment variable.")
   }
 
-  if (!is.character(openai_api_key)) {
-    stop("Error: 'openai_api_key' must be a character string.")
+  if (!is.character(anthropic_api_key)) {
+    stop("Error: 'anthropic_api_key' must be a character string.")
   }
 
-  if (length(openai_api_key) != 1) {
-    stop("Error: 'openai_api_key' must be a single value.")
+  if (length(anthropic_api_key) != 1) {
+    stop("Error: 'anthropic_api_key' must be a single value.")
   }
 
   if (is.null(model) || !is.character(model) || length(model) != 1 || is.na(model)) {
@@ -85,8 +82,10 @@ gpt <- function(source,
     stop("Temperature must be a number between 0 and 2.")
   }
 
-  if (!is.numeric(top_p) || length(top_p) != 1 || is.na(top_p) || top_p < 0 || top_p > 1) {
-    stop("Top_p must be a number between 0 and 1.")
+  if (!is.null(top_p)) {
+    if (!is.numeric(top_p) || length(top_p) != 1 || is.na(top_p) || top_p < 0 || top_p > 1) {
+      stop("Top_p must be a number between 0 and 1.")
+    }
   }
 
   if (!is.null(temperature) && !is.null(top_p)) {
@@ -99,17 +98,6 @@ gpt <- function(source,
     stop("Max_tokens must be a positive integer.")
   }
 
-  if (!is.numeric(presence_penalty) || length(presence_penalty) != 1 || is.na(presence_penalty) || presence_penalty < -2 || presence_penalty > 2) {
-    stop("Presence_penalty must be a number between -2 and 2.")
-  }
-
-  if (!is.numeric(frequency_penalty) || length(frequency_penalty) != 1 || is.na(frequency_penalty) || frequency_penalty < -2 || frequency_penalty > 2) {
-    stop("Frequency_penalty must be a number between -2 and 2.")
-  }
-
-  if (!is.null(openai_organization) && (!is.character(openai_organization) || length(openai_organization) != 1 || is.na(openai_organization))) {
-    stop("Openai_organization must be a non-NA string.")
-  }
 
   if (is.null(iterations) || !is.numeric(iterations) || length(iterations) != 1 || is.na(iterations) || iterations <= 0 || iterations %% 1 != 0) {
     stop("Iterations must be a positive integer.")
@@ -134,33 +122,26 @@ gpt <- function(source,
   }
 
   ### Build skeleton
-  base_url <- "https://api.openai.com/v1/chat/completions"
+  base_url <- "https://api.anthropic.com/v1/messages"
 
   headers <- c(
-    "Authorization" = paste("Bearer", openai_api_key),
-    "Content-Type" = "application/json"
+    "x-api-key" = anthropic_api_key,
+    "content-type" = "application/json",
+    "anthropic-version" = anthropic_version
   )
 
-  if (!is.null(openai_organization)) {
-    headers["OpenAI-Organization"] <- openai_organization
-  }
 
   body <- list()
   body[["model"]] <- model
+  body[["system"]] <- prompt
   body[["temperature"]] <- temperature
-  body[["top_p"]] <- top_p
-  body[["n"]] <- n
+  if(!is.null(top_p)) body[["top_p"]] <- top_p
+  if(!is.null(top_k)) body[["top_k"]] <- top_k
   body[["max_tokens"]] <- max_tokens
-  body[["presence_penalty"]] <- presence_penalty
-  body[["frequency_penalty"]] <- frequency_penalty
 
   completion <- function(input, prompt) {
 
     body[["messages"]] <- list(
-      list(
-        "role" = "system",
-        "content" = prompt
-      ),
       list(
         "role" = "user",
         "content" = input
@@ -181,7 +162,7 @@ gpt <- function(source,
     if (httr::http_error(response)) {
       parentInfo$http_error <- parentInfo$http_error + 1
       paste0(
-        "OpenAI API request failed [",
+        "Anthropic API request failed [",
         httr::status_code(response),
         "]:\n\n",
         parsed$error$message
@@ -195,7 +176,7 @@ gpt <- function(source,
 
   if(return_invisible == FALSE && is.null(llmObj)) {
     raw_metadata <- completion(input = source[[input]][1], prompt = prompt[1])
-    company <- "OpenAI"
+    company <- "Anthropic"
     date <- Sys.Date()
     llmObj <- list(NULL, prompt, model, company, date, raw_metadata)
   }
@@ -210,8 +191,8 @@ gpt <- function(source,
       parentInfo$EmptyCount <- parentInfo$EmptyCount + 1
       return("")
     } else {
-        ### Call to OpenAI Endpoint
-        completion(input, prompt)$choices$message.content
+      ### Call to Endpoint
+      completion(input, prompt)$content$text
     }
   }
 
@@ -242,7 +223,7 @@ gpt <- function(source,
   }
 
   if(parentInfo$http_error > 0) {
-    warning(paste("There are", parentInfo$http_error, "errors returned from OpenAI servers."))
+    warning(paste("There are", parentInfo$http_error, "errors returned from Anthropic's servers."))
   }
 
   ### Return Object or invisible
