@@ -9,20 +9,21 @@ claude(
   input,
   output = "output",
   prompt,
+  model = "claude-3-haiku-20240307",
   return_invisible = FALSE,
   iterations = 1,
-  model = "claude-3-haiku-20240307",
-  anthropic_version = "2023-06-01",
+  repair = FALSE,
+  progress = TRUE,
   temperature = 1,
   top_p = NULL,
-  max_tokens = 4096,
   top_k = NULL,
-  anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
-  progress = TRUE
+  anthropic_version = "2023-06-01",
+  max_tokens = 4096,
+  anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY")
 )
 }
 \arguments{
-\item{source}{required; A source dataframe}
+\item{source}{required; A source dataframe or llm-completion object.}
 
 \item{input}{required; A column name in the source dataframe}
 
@@ -30,25 +31,27 @@ claude(
 
 \item{prompt}{required; A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the AI model.}
 
-\item{return_invisible}{optional; A boolean to return just the output (\code{TRUE}) or an llm object containing model metadata (\code{FALSE}). Defaults to \code{FALSE}.}
-
-\item{iterations}{DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to \code{1}.}
-
 \item{model}{required; a length one character vector.}
 
-\item{anthropic_version}{optional; defaults to \code{2023-06-01}; a length one character vector. Specifies the version of the Anthropic's models.}
+\item{return_invisible}{optional; A boolean to return just the output (\code{TRUE}) or an llm object containing model metadata (\code{FALSE}). Defaults to \code{FALSE}.}
+
+\item{iterations}{optional; An integer. Number of completions to generate for each row. Defaults to \code{1}.}
+
+\item{repair}{optional; A boolean to repair NA's in the output column and keep values already present in the output column if the output column has already been created. False overrides the data already in an output column if it exists. Useful to continue a computation if you have been rate limited. Defaults to \code{FALSE}.}
+
+\item{progress}{optional; a length one logical vector. Defaults to \code{TRUE}. Determines whether to show a progress bar in the console.}
 
 \item{temperature}{optional; defaults to \code{1}; a length one numeric vector with the value between \code{0} (More analytical) and \code{1} (More creative).}
 
 \item{top_p}{optional; a length one numeric vector with the value between \code{0} and \code{1}. Only specify a temperature or a top_p, never both. Not recommended, for most use cases use temperature instead.}
 
-\item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
-
 \item{top_k}{optional; a length one numeric vector with the integer value greater than \code{0}. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.}
 
-\item{anthropic_api_key}{required; defaults to \code{Sys.getenv("ANTHROPIC_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies Anthropic API key.}
+\item{anthropic_version}{optional; defaults to \code{2023-06-01}; a length one character vector. Specifies the version of the Anthropic's models.}
 
-\item{progress}{optional; a length one logical vector. Defaults to \code{TRUE}. Determines whether to show a progress bar in the console.}
+\item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
+
+\item{anthropic_api_key}{required; defaults to \code{Sys.getenv("ANTHROPIC_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies Anthropic API key.}
 }
 \value{
 A dataframe with the output column(s) created

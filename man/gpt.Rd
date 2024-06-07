@@ -9,34 +9,39 @@ gpt(
   input,
   output = "output",
   prompt,
+  model = "gpt-3.5-turbo",
   return_invisible = FALSE,
   iterations = 1,
-  model = "gpt-3.5-turbo",
+  repair = FALSE,
+  progress = TRUE,
   temperature = 1,
   top_p = 1,
   n = 1,
-  max_tokens = 4096,
   presence_penalty = 0,
   frequency_penalty = 0,
+  max_tokens = 4096,
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
-  openai_organization = NULL,
-  progress = TRUE
+  openai_organization = NULL
 )
 }
 \arguments{
-\item{source}{required; A source dataframe}
+\item{source}{required; A source dataframe or llm-completion object.}
 
 \item{input}{required; A column name in the source dataframe}
 
 \item{output}{optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to \code{output}.}
 
-\item{prompt}{required; A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the AI model.}
-
-\item{return_invisible}{optional; A boolean to return just the output (\code{TRUE}) or an llm object containing model metadata (\code{FALSE}). Defaults to \code{FALSE}.}
-
-\item{iterations}{DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to \code{1}.}
+\item{prompt}{required; A string (Or vector of Strings for handling multiple operations at the same time) of prompts to be sent to the AI model.}
 
 \item{model}{required; a length one character vector.}
+
+\item{return_invisible}{optional; A boolean to return just the output (\code{TRUE}) or an llm-completion object containing model metadata (\code{FALSE}). Defaults to \code{FALSE}.}
+
+\item{iterations}{optional; An integer. Number of completions to generate for each prompt Defaults to \code{1}.}
+
+\item{repair}{optional; A boolean to repair NA's in the output column and keep values already present in the output column if the output column has already been created. False overrides the data already in an output column if it exists. Useful to continue a computation if you have been rate limited. Defaults to \code{FALSE}.}
+
+\item{progress}{optional; a length one logical vector. Defaults to \code{TRUE}. Determines whether to show a progress bar in the console. Not available when using repair mode.}
 
 \item{temperature}{optional; defaults to \code{1}; a length one numeric vector with the value between \code{0} (More analytical) and \code{2} (More creative).}
 
@@ -44,17 +49,15 @@ gpt(
 
 \item{n}{optional; defaults to \code{1}; a length one numeric vector with the integer value greater than \code{0}.}
 
-\item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
-
 \item{presence_penalty}{optional; defaults to \code{0}; a length one numeric vector with a value between \code{-2} and \code{2}.}
 
 \item{frequency_penalty}{optional; defaults to \code{0}; a length one numeric vector with a value between \code{-2} and \code{2}.}
 
-\item{openai_api_key}{required; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key.}
+\item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
+
+\item{openai_api_key}{required; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.}
 
 \item{openai_organization}{optional; defaults to \code{NULL}; a length one character vector. Specifies OpenAI organization.}
-
-\item{progress}{optional; a length one logical vector. Defaults to \code{TRUE}. Determines whether to show a progress bar in the console.}
 }
 \value{
 A dataframe with the output column(s) created
