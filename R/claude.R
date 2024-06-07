@@ -4,7 +4,7 @@
 #' @param output optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to `output`.
 #' @param prompt required; A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the AI model.
 #' @param return_invisible optional; A boolean to return just the output (`TRUE`) or an llm object containing model metadata (`FALSE`). Defaults to `FALSE`.
-#' @param iterations DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to `1`.
+#' @param iterations optional; An integer. Number of completions to generate for each row. Defaults to `1`.
 #' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console.
 #' @param model required; a length one character vector.
 #' @param anthropic_version optional; defaults to `2023-06-01`; a length one character vector. Specifies the version of the Anthropic's models.
@@ -229,7 +229,8 @@ claude <- function(source,
   ### Return Object or invisible
   if(return_invisible == FALSE) {
     llmObj[[1]] <- source
-    class(llmObj) <- "llm_return_object"
+    class(llmObj) <- c("llm_return_object", "list")
+    names(llmObj) <- c("Result", "Prompt", "Model", "Model_Provider", "Date", "Raw")
     return(llmObj)
   } else {
     return(source)

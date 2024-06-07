@@ -3,6 +3,9 @@
 
 ## usethis namespace: start
 #' @importFrom dplyr mutate
+#' @importFrom dplyr rowwise
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr row_number
 #' @importFrom rlang :=
 #' @importFrom rlang sym
 #' @importFrom rlang !!

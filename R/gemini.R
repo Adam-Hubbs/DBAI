@@ -4,15 +4,13 @@
 #' @param output optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to `output`.
 #' @param prompt required; A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the AI model.
 #' @param return_invisible optional; A boolean to return just the output (`TRUE`) or an llm object containing model metadata (`FALSE`). Defaults to `FALSE`.
-#' @param iterations DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to `1`.
+#' @param iterations optional; An integer. Number of completions to generate for each row. Defaults to `1`.
 #' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console.
 #' @param model required; a length one character vector.
 #' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `2` (More creative).
-#' @param top_p optional; defaults to `1`; a length one numeric vector with the value between `0` and `1`.
-#' @param n optional; defaults to `1`; a length one numeric vector with the integer value greater than `0`.
+#' @param top_k optional; a length one numeric vector with the integer value greater than `0`. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead. If no value is provided, it does not use nucleus sampling.
+#' @param top_p optional; defaults to `0.95`; a length one numeric vector with the value between `0` and `1`.
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a length one numeric vector with the integer value greater than `0`.
-#' @param presence_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
-#' @param frequency_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
 #' @return A dataframe with the output column(s) created
 #' @export
 gemini <- function(source,
@@ -21,13 +19,12 @@ gemini <- function(source,
                 prompt,
                 return_invisible = FALSE,
                 iterations = 1,
-                model = "gpt-3.5-turbo",
+                model = "gemini-1.5-flash",
                 temperature = 1,
-                top_p = 1,
-                n = 1,
+                top_p = NULL,
+                top_k = NULL,
+                google_api_key = Sys.getenv("GOOGLE_API_KEY"),
                 max_tokens = 4096,
-                presence_penalty = 0,
-                frequency_penalty = 0,
                 progress = TRUE) {
 
 
@@ -61,16 +58,16 @@ gemini <- function(source,
     stop("Prompt must be a string or vector of strings.")
   }
 
-  if(is.null(openai_api_key) || openai_api_key == "") {
-    stop("API Key not found. Please set the OPENAI_API_KEY environment variable.")
+  if(is.null(google_api_key) || google_api_key == "") {
+    stop("API Key not found. Please set the GOOGLE_API_KEY environment variable.")
   }
 
-  if (!is.character(openai_api_key)) {
-    stop("Error: 'openai_api_key' must be a character string.")
+  if (!is.character(google_api_key)) {
+    stop("Error: 'google_api_key' must be a character string.")
   }
 
-  if (length(openai_api_key) != 1) {
-    stop("Error: 'openai_api_key' must be a single value.")
+  if (length(google_api_key) != 1) {
+    stop("Error: 'google_api_key' must be a single value.")
   }
 
   if (is.null(model) || !is.character(model) || length(model) != 1 || is.na(model)) {
@@ -81,7 +78,7 @@ gemini <- function(source,
     stop("Temperature must be a number between 0 and 2.")
   }
 
-  if (!is.numeric(top_p) || length(top_p) != 1 || is.na(top_p) || top_p < 0 || top_p > 1) {
+  if (!is.null(top_p) && (!is.numeric(top_p) || length(top_p) != 1 || is.na(top_p) || top_p < 0 || top_p > 1)) {
     stop("Top_p must be a number between 0 and 1.")
   }
 
@@ -95,24 +92,16 @@ gemini <- function(source,
     stop("Max_tokens must be a positive integer.")
   }
 
-  if (!is.numeric(presence_penalty) || length(presence_penalty) != 1 || is.na(presence_penalty) || presence_penalty < -2 || presence_penalty > 2) {
-    stop("Presence_penalty must be a number between -2 and 2.")
-  }
-
-  if (!is.numeric(frequency_penalty) || length(frequency_penalty) != 1 || is.na(frequency_penalty) || frequency_penalty < -2 || frequency_penalty > 2) {
-    stop("Frequency_penalty must be a number between -2 and 2.")
-  }
-
-  if (!is.null(openai_organization) && (!is.character(openai_organization) || length(openai_organization) != 1 || is.na(openai_organization))) {
-    stop("Openai_organization must be a non-NA string.")
-  }
-
   if (is.null(iterations) || !is.numeric(iterations) || length(iterations) != 1 || is.na(iterations) || iterations <= 0 || iterations %% 1 != 0) {
     stop("Iterations must be a positive integer.")
   }
 
   if (!is.logical(progress) || length(progress) != 1 || is.na(progress)) {
     stop("Progress must be a boolean.")
+  }
+
+  if(!is.null(top_k) && (!is.numeric(top_k) || length(top_k) != 1 || is.na(top_k) || top_k <= 0 || top_k %% 1 != 0)) {
+    stop("Top_k must be a positive integer.")
   }
 
   llmObj <- NULL
@@ -130,41 +119,37 @@ gemini <- function(source,
   }
 
   ### Build skeleton
-  base_url <- "https://api.openai.com/v1/chat/completions"
+  base_url <- "https://generativelanguage.googleapis.com/v1/models/"
+  url_model <- paste0(base_url, model, ":generateContent?key=", google_api_key)
 
   headers <- c(
-    "Authorization" = paste("Bearer", openai_api_key),
     "Content-Type" = "application/json"
   )
 
-  if (!is.null(openai_organization)) {
-    headers["OpenAI-Organization"] <- openai_organization
-  }
+  generationConfig <- list()
+  generationConfig[["temperature"]] <- temperature
+  generationConfig[["topP"]] <- top_p
+  if(!is.null(top_k)) generationConfig[["topK"]] <- top_k
+  generationConfig[["maxOutputTokens"]] <- max_tokens
 
   body <- list()
-  body[["model"]] <- model
-  body[["temperature"]] <- temperature
-  body[["top_p"]] <- top_p
-  body[["n"]] <- n
-  body[["max_tokens"]] <- max_tokens
-  body[["presence_penalty"]] <- presence_penalty
-  body[["frequency_penalty"]] <- frequency_penalty
+  body[["generationConfig"]] <- generationConfig
 
   completion <- function(input, prompt) {
 
-    body[["messages"]] <- list(
+    body[["contents"]] <- list(
       list(
-        "role" = "system",
-        "content" = prompt
-      ),
-      list(
-        "role" = "user",
-        "content" = input
+        "parts" = list(
+          list(
+            "text" = paste(prompt, input)
+          )
+        )
       )
     )
 
+    #Create body with generationConfig and content
     response <- httr::POST(
-      url = base_url,
+      url = url_model,
       httr::add_headers(.headers = headers),
       body = body,
       encode = "json"
@@ -177,7 +162,7 @@ gemini <- function(source,
     if (httr::http_error(response)) {
       parentInfo$http_error <- parentInfo$http_error + 1
       paste0(
-        "OpenAI API request failed [",
+        "Google API request failed [",
         httr::status_code(response),
         "]:\n\n",
         parsed$error$message
@@ -191,7 +176,7 @@ gemini <- function(source,
 
   if(return_invisible == FALSE && is.null(llmObj)) {
     raw_metadata <- completion(input = source[[input]][1], prompt = prompt[1])
-    company <- "OpenAI"
+    company <- "Google"
     date <- Sys.Date()
     llmObj <- list(NULL, prompt, model, company, date, raw_metadata)
   }
@@ -206,8 +191,9 @@ gemini <- function(source,
       parentInfo$EmptyCount <- parentInfo$EmptyCount + 1
       return("")
     } else {
-      ### Call to OpenAI Endpoint
-      completion(input, prompt)$choices$message.content
+      ### Call to Google Endpoint
+      completion(input, prompt)$candidates$`content.parts`[[1]]$text
+
     }
   }
 
@@ -244,7 +230,8 @@ gemini <- function(source,
   ### Return Object or invisible
   if(return_invisible == FALSE) {
     llmObj[[1]] <- source
-    class(llmObj) <- "llm_return_object"
+    class(llmObj) <- c("llm_return_object", "list")
+    names(llmObj) <- c("Result", "Prompt", "Model", "Model_Provider", "Date", "Raw")
     return(llmObj)
   } else {
     return(source)

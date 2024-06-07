@@ -4,7 +4,7 @@
 #' @param output optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to `output`.
 #' @param prompt required; A string (Or vector of Strings for handling multiple operations at the same time) of a system message to be sent to the AI model.
 #' @param return_invisible optional; A boolean to return just the output (`TRUE`) or an llm object containing model metadata (`FALSE`). Defaults to `FALSE`.
-#' @param iterations DEV ONLY. SUPPORT COMING SOON. Number of completions to generate. Integer. Defaults to `1`.
+#' @param iterations optional; An integer. Number of completions to generate for each row. Defaults to `1`.
 #' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console.
 #' @param model required; a length one character vector.
 #' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `2` (More creative).
@@ -15,6 +15,7 @@
 #' @param frequency_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
 #' @param openai_api_key required; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key.
 #' @param openai_organization optional; defaults to `NULL`; a length one character vector. Specifies OpenAI organization.
+#' @param repair optional; A boolean to repair NA's in the input column and keep values already present in the output column if the output column has already been created. False overrides the data already in an output column if it exists. Defaults to `FALSE`.
 #' @return A dataframe with the output column(s) created
 #' @export
 gpt <- function(source,
@@ -32,13 +33,16 @@ gpt <- function(source,
                 frequency_penalty = 0,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
-                progress = TRUE) {
+                progress = TRUE,
+                repair = FALSE) {
 
-
-  # Add progress bar functionality
 
   ### Validate Statements
   if(!is.logical(return_invisible) || length(return_invisible) != 1 || is.na(return_invisible)) {
+    stop("Return Invisible must be a boolean.")
+  }
+
+  if(!is.logical(repair) || length(repair) != 1 || is.na(repair)) {
     stop("Return Invisible must be a boolean.")
   }
 
@@ -122,9 +126,17 @@ gpt <- function(source,
   llmObj <- NULL
 
   parentInfo <- new.env()
-  parentInfo$NACount <- 0
-  parentInfo$EmptyCount <- 0
+  parentInfo$NACount <- 0L
+  parentInfo$EmptyCount <- 0L
   parentInfo$http_error <- 0
+  parentInfo$firstLineError <- 0L
+
+
+  #If repair is true and progress is true, turn off progress
+  if(repair == TRUE && progress == TRUE) {
+    message("Progress bars are not supported in Repair mode")
+    progress <- FALSE
+  }
 
   if (progress == TRUE) {
     parentInfo$pb <- progress::progress_bar$new(
@@ -155,6 +167,10 @@ gpt <- function(source,
   body[["frequency_penalty"]] <- frequency_penalty
 
   completion <- function(input, prompt) {
+    #Throw an error 20% of the time
+    if(runif(1) < 0.2) {
+      stop("Random error")
+    }
 
     body[["messages"]] <- list(
       list(
@@ -214,24 +230,53 @@ gpt <- function(source,
         completion(input, prompt)$choices$message.content
     }
   }
+  source <- source |>
+    dplyr::mutate(DBAI_Index_Row_Number = dplyr::row_number()) |>
+    dplyr::rowwise()
 
-  for (iter in 1:iterations) {
-    for (h in seq_along(prompt)) {
-      if (iter == 1) {
-        outputcol <- output[h]
-      } else {
-        outputcol <- paste0(output[h], "_", iter)
+  if(repair == TRUE) {
+    for (iter in 1:iterations) {
+      for (h in seq_along(prompt)) {
+        if (iter == 1) {
+          outputcol <- output[h]
+        } else {
+          outputcol <- paste0(output[h], "_", iter)
+        }
+        source <- source |>
+          dplyr::mutate(!!sym(outputcol) := if_else(is.na(!!sym(outputcol)),
+                          tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
+                      return(NA)
+          }), !!sym(outputcol))
+          )
       }
-      source <- source |>
-        dplyr::rowwise() |>
-        dplyr::mutate(!!outputcol := tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
-          message(paste("Error (returning NA for column):", input, "-", e$message))
-          return(NA)
-        })) |>
-        dplyr::ungroup()
+    }
+  } else {
+    for (iter in 1:iterations) {
+      for (h in seq_along(prompt)) {
+        if (iter == 1) {
+          outputcol <- output[h]
+        } else {
+          outputcol <- paste0(output[h], "_", iter)
+        }
+        source <- source |>
+          dplyr::mutate(!!outputcol := tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
+            if(parentInfo$firstLineError == 0) {
+              parentInfo$firstLineError <- DBAI_Index_Row_Number
+            }
+            message(paste("Error: Returning NA in row", DBAI_Index_Row_Number, "Message:", e$message))
+            return(NA)
+          }))
+      }
     }
   }
 
+  source <- source |>
+    dplyr::ungroup() |>
+    dplyr::select(-DBAI_Index_Row_Number)
+
+  if(parentInfo$firstLineError > 0) {
+    warning(paste("First Error located in row", parentInfo$firstLineError, ". This is probably a rate limit error. Check the website of the model provider for specific rate limits for your usage tier. Rerun this function again with repair=TRUE to continue processing once you are no longer rate-limited."))
+  }
 
   if(parentInfo$NACount > 0) {
     warning(paste("There are", parentInfo$NACount, "missing values in the input column.", parentInfo$NACount, "NA's introduced in the output."))
@@ -242,13 +287,14 @@ gpt <- function(source,
   }
 
   if(parentInfo$http_error > 0) {
-    warning(paste("There are", parentInfo$http_error, "errors returned from OpenAI servers."))
+    warning(paste("There are", parentInfo$http_error, "error(s) returned from OpenAI servers."))
   }
 
   ### Return Object or invisible
   if(return_invisible == FALSE) {
     llmObj[[1]] <- source
-    class(llmObj) <- "llm_return_object"
+    class(llmObj) <- c("llm_return_object", "list")
+    names(llmObj) <- c("Result", "Prompt", "Model", "Model_Provider", "Date", "Raw")
     return(llmObj)
   } else {
     return(source)
