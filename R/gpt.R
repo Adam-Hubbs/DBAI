@@ -107,7 +107,7 @@ gpt <- function(source,
   }
 
   if(repair == TRUE) {
-    if (!all(output %in% colnames(s))) {
+    if (!all(output %in% colnames(source))) {
       stop("All elements of 'output' must be be present in 'source' dataframe when using repair mode. Please provide output columns that already exist in the dataframe or turn repair mode off.")
     }
   }
