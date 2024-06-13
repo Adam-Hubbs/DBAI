@@ -2,9 +2,9 @@
 % Please edit documentation in R/list_models.R
 \name{list_models}
 \alias{list_models}
-\title{List models available in the OpenAI API (Anthropic has no API for this.)}
+\title{List models available in the OpenAI API (Anthropic has no API for this. Google does and support for Google will be added soon.)}
 \usage{
-list_models(openai_api_key)
+list_models(openai_api_key = Sys.getenv("OPENAI_API_KEY"))
 }
 \arguments{
 \item{openai_api_key}{required; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key.}

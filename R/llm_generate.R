@@ -46,10 +46,6 @@ llm_generate <- function(source,
 {
 
 
-
-  #Everything is up to date and working! Gemini and Clause and now stable. I've added a function called llm_completion that can handle all model providers. I think this function should be the default moving forward because it abstracts the model providers and one function is easier to remember than four. I've updated documentation to reflect that. This is open to discussion though.I have added a repair mode. If you are running a large dataset through this function and there are errors on the model providers end, or you are rate limited, the function automatically saves what has been done so far. With repair mode, you can pass it a dataframe or llm_completion object and it will keep what has already been done and pick up right where it left off, saving time and money and making it so you don't have to manua;ly subset the dataframe, run the function again, then recomine it later. The documentation has also been updated and uploaded to Box (the .qmd file). I think everything in the package is in a pretty good shape right now. Testing by your other RA's would be appritiated. I think this is ready to use in a presentation now. Just as another reminder, I will be getting married this week, and I will be available for questions and bug fixes until this thursday, then I will be unavailable unitl June  24th.
-
-  ### Repair mode support llm-completion object as well as Dataframe
   ### Add support for Matricies (And Arrays?)
 
 
@@ -58,49 +54,49 @@ llm_generate <- function(source,
 
   lookup_table <- list(
     "gpt-3.5-turbo-16k" = "openai",
-    "gpt-3.5-turbo-instruct" = "openai",
-    "gpt-4-turbo-2024-04-09" = "openai",
-    "gpt-4-turbo" = "openai",
-    "gpt-4-1106-preview" = "openai",
-    "gpt-3.5-turbo-1106" = "openai",
-    "gpt-4-0125-preview" = "openai",
-    "gpt-3.5-turbo-0125" = "openai",
-    "gpt-3.5-turbo" = "openai",
-    "gpt-3.5-turbo-0301" = "openai",
-    "gpt-4-turbo-preview" = "openai",
-    "gpt-4o-2024-05-13" = "openai",
-    "gpt-3.5-turbo-instruct-0914" = "openai",
-    "gpt-3.5-turbo-16k-0613" = "openai",
-    "gpt-4" = "openai",
-    "gpt-4-1106-vision-preview" = "openai",
-    "gpt-4-0613" = "openai",
-    "gpt-4o" = "openai",
-    "gpt-3.5" = "openai",
-    "claude-3-opus-20240229" = "anthropic",
-    "claude-3-sonnet-20240229" = "anthropic",
-    "claude-3-haiku-20240307" = "anthropic",
-    "gemini-1.5-pro" = "google",
-    "gemini-1.5-flash" = "google",
-    "gemini-1.0-pro" = "google",
-    "gemini-pro-vision" = "google")
+    "gpt-3.5-turbo-instruct" = "OpenAI",
+    "gpt-4-turbo-2024-04-09" = "OpenAI",
+    "gpt-4-turbo" = "OpenAI",
+    "gpt-4-1106-preview" = "OpenAI",
+    "gpt-3.5-turbo-1106" = "OpenAI",
+    "gpt-4-0125-preview" = "OpenAI",
+    "gpt-3.5-turbo-0125" = "OpenAI",
+    "gpt-3.5-turbo" = "OpenAI",
+    "gpt-3.5-turbo-0301" = "OpenAI",
+    "gpt-4-turbo-preview" = "OpenAI",
+    "gpt-4o-2024-05-13" = "OpenAI",
+    "gpt-3.5-turbo-instruct-0914" = "OpenAI",
+    "gpt-3.5-turbo-16k-0613" = "OpenAI",
+    "gpt-4" = "OpenAI",
+    "gpt-4-1106-vision-preview" = "OpenAI",
+    "gpt-4-0613" = "OpenAI",
+    "gpt-4o" = "OpenAI",
+    "gpt-3.5" = "OpenAI",
+    "claude-3-opus-20240229" = "Anthropic",
+    "claude-3-sonnet-20240229" = "Anthropic",
+    "claude-3-haiku-20240307" = "Anthropic",
+    "gemini-1.5-pro" = "Google",
+    "gemini-1.5-flash" = "Google",
+    "gemini-1.0-pro" = "Google")
 
     providers <- lookup_tabe[[model]]
   ### Figure out which model provider we are going to use
-  ###
-  ###
   ### Figure out how to attatch meta-data
   ### How to store tmp instead of override. Use arrays?
   ### Possible Error in getting Sys.getenv for api keys not being used.
+  rawData <- vector("list", length(providers))
   for(i in c(1:length(providers))) {
-    if(any(grepl(paste0("^", output[1]), colnames(source)))) {
+    if(length(models) > 1) {
       output2 <- paste0(output, "_", model[i])
+    } else {
+      output2 <- output
     }
-    if(providers[i] == "openai") {
-      tmp <- gpt(source,
+    if(providers[i] == "OpenAI") {
+      source <- gpt(source,
           input,
           output = output2,
           prompt,
-          model,
+          model[i],
           return_invisible,
           iterations,
           repair,
@@ -113,13 +109,13 @@ llm_generate <- function(source,
           max_tokens,
           openai_api_key,
           openai_organization)
-    } else if(i == "anthropic"){
-      tmp <- claude(
+    } else if(i == "Anthropic"){
+      source <- claude(
         source,
         input,
         output = output2,
         prompt,
-        model,
+        model[i],
         return_invisible,
         iterations,
         repair,
@@ -130,13 +126,13 @@ llm_generate <- function(source,
         anthropic_version,
         max_tokens,
         anthropic_api_key)
-    } else if(i == "google"){
-      tmp <- gemini(
+    } else if(i == "Google"){
+      source <- gemini(
         source,
         input,
         output = output2,
         prompt,
-        model,
+        model[i],
         return_invisible,
         iterations,
         repair,
@@ -149,9 +145,14 @@ llm_generate <- function(source,
     } else {
       stop("Model not found. Please check the model name.")
     }
+    if(return_invisible == FALSE && length(models) > 1) {
+      RawData[[i]] <- source$Raw
+    }
   }
-
-
-
-
+  if(return_invisible == FALSE && length(models) > 1) {
+    source$Model <- models
+    source$Model_Provider <- providers
+    source$Raw <- RawData
+  }
+  return(source)
 }

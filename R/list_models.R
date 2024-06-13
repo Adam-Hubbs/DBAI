@@ -1,9 +1,9 @@
 #' list_models
-#' @title List models available in the OpenAI API (Anthropic has no API for this.)
+#' @title List models available in the OpenAI API (Anthropic has no API for this. Google does and support for Google will be added soon.)
 #' @param openai_api_key required; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key.
 #' @return a list of models available in the OpenAI API.
 #' @export
-list_models <- function(openai_api_key) {
+list_models <- function(openai_api_key = Sys.getenv("OPENAI_API_KEY")) {
 
   if(is.null(openai_api_key) || openai_api_key == "") {
     stop("API Key not found. Please set the OPENAI_API_KEY environment variable.")
