@@ -243,8 +243,12 @@ gemini <- function(source,
       return("")
     } else {
       ### Call to Google Endpoint
-      completion(input, prompt)$candidates$`content.parts`[[1]]$text
-
+      d <- completion(input, prompt)
+      if(d$candidates$finishReason != "STOP") {
+        #Force non-vectorized error message
+        stop(paste("Gemini API refused to return completion for reason", d$candidates$finishReason, "\n Safety Information:"))
+      }
+      return(d$data$contents[[1]]$parts[[1]]$text)
     }
   }
 
@@ -283,13 +287,13 @@ gemini <- function(source,
           outputcol <- paste0(output[h], "_", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
+          dplyr::mutate(!!outputcol := list(tryCatch(CallGPT(parentInfo, !!sym(input), prompt = prompt[h]), error = function(e) {
             if(parentInfo$firstLineError == 0) {
               parentInfo$firstLineError <- DBAI_Index_Row_Number
             }
             message(paste("Error: Returning NA in row", DBAI_Index_Row_Number, "Message:", e$message))
             return(NA)
-          }))
+          })))
       }
     }
   }

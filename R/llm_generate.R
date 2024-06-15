@@ -52,7 +52,7 @@ llm_generate <- function(source,
   ### Validate Statements ----------------------------------
 
 
-  lookup_table <- list(
+  lookup_table <- c(
     "gpt-3.5-turbo-16k" = "openai",
     "gpt-3.5-turbo-instruct" = "OpenAI",
     "gpt-4-turbo-2024-04-09" = "OpenAI",
@@ -79,19 +79,20 @@ llm_generate <- function(source,
     "gemini-1.5-flash" = "Google",
     "gemini-1.0-pro" = "Google")
 
-    providers <- lookup_tabe[[model]]
-  ### Figure out which model provider we are going to use
-  ### Figure out how to attatch meta-data
-  ### How to store tmp instead of override. Use arrays?
-  ### Possible Error in getting Sys.getenv for api keys not being used.
-  rawData <- vector("list", length(providers))
+    providers <- lookup_table[model]
+    rawData <- vector("list", length(providers))
+    print(paste("Length of providers:", length(providers)))
+    print(paste("Providers:", providers))
+
   for(i in c(1:length(providers))) {
-    if(length(models) > 1) {
+    print("Entered Loop")
+    if(length(model) > 1) {
       output2 <- paste0(output, "_", model[i])
     } else {
       output2 <- output
     }
     if(providers[i] == "OpenAI") {
+      print("Open AI Called")
       source <- gpt(source,
           input,
           output = output2,
@@ -109,7 +110,8 @@ llm_generate <- function(source,
           max_tokens,
           openai_api_key,
           openai_organization)
-    } else if(i == "Anthropic"){
+    } else if(providers[i] == "Anthropic"){
+      print("Anthropic called")
       source <- claude(
         source,
         input,
@@ -126,7 +128,8 @@ llm_generate <- function(source,
         anthropic_version,
         max_tokens,
         anthropic_api_key)
-    } else if(i == "Google"){
+    } else if(providers[i] == "Google"){
+      print("Google called")
       source <- gemini(
         source,
         input,
@@ -145,14 +148,21 @@ llm_generate <- function(source,
     } else {
       stop("Model not found. Please check the model name.")
     }
-    if(return_invisible == FALSE && length(models) > 1) {
-      RawData[[i]] <- source$Raw
+    print("Final stuff inside loop")
+    if(return_invisible == FALSE) {
+      print("Inside return_invisible == FALSE")
+      print(rawData)
+      rawData[[i]] <- source$Raw
+      print("RawData has to be found at this point")
     }
   }
-  if(return_invisible == FALSE && length(models) > 1) {
-    source$Model <- models
+  if(return_invisible == FALSE && length(model) > 1) {
+    print("Final bit")
+    source$Model <- model
+    #Providers is a named Character Vector instead of regular Character Vector. Need to Fix this.
     source$Model_Provider <- providers
-    source$Raw <- RawData
+    source$Raw <- rawData
   }
+  print("Returning")
   return(source)
 }

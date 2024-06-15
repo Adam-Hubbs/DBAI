@@ -188,7 +188,6 @@ claude <- function(source,
 
   body <- list()
   body[["model"]] <- model
-  body[["system"]] <- prompt
   body[["temperature"]] <- temperature
   if(!is.null(top_p)) body[["top_p"]] <- top_p
   if(!is.null(top_k)) body[["top_k"]] <- top_k
@@ -199,7 +198,7 @@ claude <- function(source,
 
   ### Completion Function for Anthropic -------------------------
   completion <- function(input, prompt) {
-
+    body[["system"]] <- prompt
     body[["messages"]] <- list(
       list(
         "role" = "user",
