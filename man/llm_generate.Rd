@@ -37,7 +37,7 @@ llm_generate(
 
 \item{prompt}{required; A string (Or vector of Strings for handling multiple operations at the same time) of prompts to be sent to the AI model.}
 
-\item{model}{required; a length one character vector.}
+\item{model}{required; a character vector.}
 
 \item{return_invisible}{optional; A boolean to return just the output (\code{TRUE}) or an llm-completion object containing model metadata (\code{FALSE}). Defaults to \code{FALSE}.}
 
@@ -49,19 +49,19 @@ llm_generate(
 
 \item{temperature}{optional; defaults to \code{1}; a length one numeric vector with the value between \code{0} (More analytical) and \code{2} (More creative). \code{0-2} for OpenAI and Google models, \code{0-1} for Anthropic models.}
 
-\item{top_p}{optional; defaults to \code{1}; a length one numeric vector with the value between \code{0} and \code{1}.}
+\item{top_p}{optional; defaults to \code{1}; a numeric vector with the value between \code{0} and \code{1}.}
 
-\item{top_k}{optional; a length one numeric vector with the integer value greater than \code{0}. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.}
+\item{top_k}{optional; a numeric vector with the integer value greater than \code{0}. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.}
 
-\item{anthropic_version}{optional; defaults to \code{2023-06-01}; a length one character vector. Specifies the version of the Anthropic's models.}
+\item{anthropic_version}{optional; defaults to \code{2023-06-01}; a character vector. Specifies the version of the Anthropic's models.}
 
-\item{n}{optional; defaults to \code{1}; a length one numeric vector with the integer value greater than \code{0}.}
+\item{n}{optional; defaults to \code{1}; a numeric vector with the integer value greater than \code{0}.}
 
-\item{presence_penalty}{optional; defaults to \code{0}; a length one numeric vector with a value between \code{-2} and \code{2}.}
+\item{presence_penalty}{optional; defaults to \code{0}; a numeric vector with a value between \code{-2} and \code{2}.}
 
-\item{frequency_penalty}{optional; defaults to \code{0}; a length one numeric vector with a value between \code{-2} and \code{2}.}
+\item{frequency_penalty}{optional; defaults to \code{0}; a numeric vector with a value between \code{-2} and \code{2}.}
 
-\item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
+\item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a numeric vector with the integer value greater than \code{0}.}
 
 \item{openai_api_key}{optional; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.}
 
