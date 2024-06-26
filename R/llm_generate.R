@@ -81,18 +81,14 @@ llm_generate <- function(source,
 
     providers <- lookup_table[model]
     rawData <- vector("list", length(providers))
-    print(paste("Length of providers:", length(providers)))
-    print(paste("Providers:", providers))
 
   for(i in c(1:length(providers))) {
-    print("Entered Loop")
     if(length(model) > 1) {
       output2 <- paste0(output, "_", model[i])
     } else {
       output2 <- output
     }
     if(providers[i] == "OpenAI") {
-      print("Open AI Called")
       source <- gpt(source,
           input,
           output = output2,
@@ -111,7 +107,6 @@ llm_generate <- function(source,
           openai_api_key,
           openai_organization)
     } else if(providers[i] == "Anthropic"){
-      print("Anthropic called")
       source <- claude(
         source,
         input,
@@ -129,7 +124,6 @@ llm_generate <- function(source,
         max_tokens,
         anthropic_api_key)
     } else if(providers[i] == "Google"){
-      print("Google called")
       source <- gemini(
         source,
         input,
@@ -148,21 +142,14 @@ llm_generate <- function(source,
     } else {
       stop("Model not found. Please check the model name.")
     }
-    print("Final stuff inside loop")
     if(return_invisible == FALSE) {
-      print("Inside return_invisible == FALSE")
-      print(rawData)
       rawData[[i]] <- source$Raw
-      print("RawData has to be found at this point")
     }
   }
   if(return_invisible == FALSE && length(model) > 1) {
-    print("Final bit")
     source$Model <- model
-    #Providers is a named Character Vector instead of regular Character Vector. Need to Fix this.
-    source$Model_Provider <- providers
+    source$Model_Provider <- unname(providers)
     source$Raw <- rawData
   }
-  print("Returning")
   return(source)
 }
