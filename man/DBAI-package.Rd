@@ -4,7 +4,7 @@
 \name{DBAI-package}
 \alias{DBAI}
 \alias{DBAI-package}
-\title{DBAI: OpenAI Tools for R Datasets}
+\title{DBAI: AI Tools for R Datasets}
 \description{
 R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, but support for other API's is coming soon.
 }
@@ -12,6 +12,7 @@ R Wrapper for AI API's. This package is designed to make it easier to access and
 Useful links:
 \itemize{
   \item \url{https://github.com/Adam-Hubbs/DBAI}
+  \item \url{https://adam-hubbs.github.io/DBAI/}
   \item Report bugs at \url{https://github.com/Adam-Hubbs/DBAI/issues}
 }
 
