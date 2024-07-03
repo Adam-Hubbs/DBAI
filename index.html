@@ -83,14 +83,6 @@
 <li><p>Gemma models (through Deep Infra) <strong>Coming Soon</strong></p></li>
 </ul>
 </li>
-<li>
-<p>Deep Infra via <code>mistral</code>, <code>llama</code>, or <code>deep-infra</code> <strong>Coming Soon</strong></p>
-<ul>
-<li><p>Meta’s Llama models</p></li>
-<li><p>Mistrals open source models</p></li>
-<li><p>Gemma (Google), Wizard (Microsoft), and several other smaller open source projects</p></li>
-</ul>
-</li>
 </ul>
 <p>In addition, all of these models can be accessed with the alias function <code>llm_generate</code>.</p>
 <p>All of these models can be called using similar syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider’s website.</p>
@@ -98,7 +90,6 @@
 <li><p><a href="https://platform.openai.com/playground" class="external-link uri">https://platform.openai.com/playground</a></p></li>
 <li><p><a href="https://www.anthropic.com/api" class="external-link uri">https://www.anthropic.com/api</a></p></li>
 <li><p><a href="https://ai.google.dev/gemini-api" class="external-link uri">https://ai.google.dev/gemini-api</a></p></li>
-<li><p><a href="https://deepinfra.com/" class="external-link uri">https://deepinfra.com/</a></p></li>
 </ul>
 <div class="section level3">
 <h3 id="costs">Costs<a class="anchor" aria-label="anchor" href="#costs"></a>
@@ -114,8 +105,8 @@
 <div class="section level2">
 <h2 id="loading-the-package">Loading the Package<a class="anchor" aria-label="anchor" href="#loading-the-package"></a>
 </h2>
-<p>DBAI is hosted on github. You can install packages from github by using the <code>remotes::install_github()</code> function. This is the equivalent to installing a package from CRAN using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, and only needs to be done once.</p>
-<p><code>{r} remotes::install_github("Adam-Hubbs/DBAI")</code></p>
+<p>DBAI is hosted on github. You can install packages from github by using the <code><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak::pak()</a></code> function. This is the equivalent to installing a package from CRAN using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, and only needs to be done once.</p>
+<p><code>{r} pak::pak("Adam-Hubbs/DBAI")</code></p>
 <p>To load the package into memory, use the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function as you would a package from CRAN.</p>
 <p><code>{r} library(DBAI)</code></p>
 <p>There is one more step we must do before using this package. We need to set the API Key. We will need to set this information in an environmental variable so the R package can recognize it. This needs to be done once per R session. You only need the API Key for the model provider you want to use. For example, if you only care about access to Claude models then you only need the Anthropic API Key. If you only want to run OpenAI’s models you only need the OpenAI API Key, etc.</p>
@@ -125,7 +116,7 @@
 <pre><code>
 ## Example Data
 
-Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. Let's take this information and try to predict who they voted for in the 2020 presidential election.
+Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. See the `glue` package for how to automate this. Let's take this information and try to predict who they voted for in the 2020 presidential election.
 
 ```{r}
 sample_df &lt;- data.frame(
@@ -148,7 +139,7 @@ prompt &lt;- "I will give you demographic information. I want you to predict who
 <p>```{r} return_obj &lt;- llm_generate(source = sample_df, input = “demo”, output = “Vote”, prompt = prompt, model = c(“gpt-3.5-turbo”, “gemini-1.5-flash”), max_tokens = 10)</p>
 <p>print(return_obj)</p>
 <pre><code>
-Here we call out function `gpt()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
+Here we call out function `llm_generate()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
 
 Go ahead and run this and examine the results.
 
@@ -218,7 +209,7 @@ print(sample_df)</code></pre>
 </tbody>
 </table>
 <p>Here we see that the most likely next word is ‘Wife’ but there are many other options. <code>Top_k</code> restricts the sample to the top K number of options. For example, if <code>top_k</code> were set to 3 in this example, the LLM would choose between ‘Wife’, ‘Dog’, and ‘Son’. <code>Top_p</code> similarly restricts the sample but instead of giving a fixed number of options, it gives a fixed probability. If out <code>top_p</code> were set to .5, then ‘Wife’ and ‘Dog’ would be considered because they represent the least number of options needed to reach at least a .5 probability.</p>
-<p>Lets say the LLM ended up choosing ‘Wife’. Lets look at the wrod after wife for another example of the difference between top_k and top_p. Maybe the next word after ‘Wife’ is a little harder to determine and there were 12 words that combined together reached .5 probability. In this case using the <code>top_p</code> method those 12 words would be options for the LLM. Using the <code>top_k</code> method still only the top 3 would be considered.</p>
+<p>Lets say the LLM ended up choosing ‘Wife’. Lets look at the word after wife for another example of the difference between top_k and top_p. Maybe the next word after ‘Wife’ is a little harder to determine and there were 12 words that combined together reached .5 probability. In this case using the <code>top_p</code> method those 12 words would be options for the LLM. Using the <code>top_k</code> method still only the top 3 would be considered.</p>
 <p>It is not advised to use temperature, top_p, or top_k at the same time. Some models will let you and some won’t. Unless you really have to, we recommend only changing temperature.</p>
 <p><code>Max_tokens</code> determines how long the maximum response will be. Some models count both the input and output tokens as one, and some only count the output tokens. Setting the max_tokens to a low number like 5 will restrict the response to only a couple words while leaving the max_tokens blank or setting it to a large number like 4,000 will enable the LLM to respond with paragraphs of analysis.</p>
 </div>
