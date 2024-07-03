@@ -10,6 +10,8 @@ execute:
 
 ## DBAI
 
+BT_TRUE
+
 DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API's. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
 
 DBAI supports the following companies and models
