@@ -1,3 +1,4 @@
 # DBAI (development version)
 
-* Initial CRAN submission.
+### Documentation Update
+* Github Pages and News are updated

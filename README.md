@@ -8,29 +8,28 @@ execute:
   error: false
 ---
 
-## DBAI
+# DBAI
 
 DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API's. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
 
 DBAI supports the following companies and models
 
--   Open AI via `gpt`
+-   Open AI via `gpt()`
 
     -   Popular models include gpt-3.5, gpt-4, and gpt-4o
 
     -   Access the models behind ChatGPT
 
--   Anthropic via `claude`
+-   Anthropic via `claude()`
 
     -   All versions of claude3
 
--   Google via `gemini`
+-   Google via `gemini()`
 
     -   Gemini 1.5 family of models
 
-    -   Gemma models (through Deep Infra) **Coming Soon**
 
-In addition, all of these models can be accessed with the alias function `llm_generate`.
+In addition, all of these models can be accessed with the prefered alias function `llm_generate()`.
 
 All of these models can be called using similar syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website.
 
@@ -40,7 +39,7 @@ All of these models can be called using similar syntax. The main difference is e
 
 -   <https://ai.google.dev/gemini-api>
 
-### Costs
+## Costs
 
 All of these companies provide reasonable access to their models. Their cost changes frequently, so the most accurate place to go to gauge price is the website for these companies directly. They typically provide cost per 1 Million tokens (roughly equivalent to a syllable or word). For most datasets up to 10,000 rows the cost should be in pennies.
 
