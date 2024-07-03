@@ -10,8 +10,6 @@ execute:
 
 ## DBAI
 
-BT_FALSE
-
 DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API's. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
 
 DBAI supports the following companies and models
@@ -54,19 +52,19 @@ Rate limits are restrictions on how many API calls you can make in a given perio
 
 DBAI is hosted on github. You can install packages from github by using the `pak::pak()` function. This is the equivalent to installing a package from CRAN using `install.packages()`, and only needs to be done once.
 
-{r}
+``` {r}
 pak::pak("Adam-Hubbs/DBAI")
 ```
 
 To load the package into memory, use the `library()` function as you would a package from CRAN.
 
-{r}
+``` {r}
 library(DBAI)
 ```
 
 There is one more step we must do before using this package. We need to set the API Key. We will need to set this information in an environmental variable so the R package can recognize it. This needs to be done once per R session. You only need the API Key for the model provider you want to use. For example, if you only care about access to Claude models then you only need the Anthropic API Key. If you only want to run OpenAI's models you only need the OpenAI API Key, etc.
 
-{r}
+``` {r}
 Sys.setenv(
   OPENAI_API_KEY = 'XXXXXXXXXXX'
 )
@@ -84,7 +82,7 @@ Sys.setenv(
 
 Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. See the `glue` package for how to automate this. Let's take this information and try to predict who they voted for in the 2020 presidential election.
 
-{r}
+``` {r}
 sample_df <- data.frame(
   year = c(1964, 1998, 1979, 1981),
   gender = c("Male", "Female", "Male", "Female"),
@@ -105,7 +103,7 @@ prompt <- "I will give you demographic information. I want you to predict who th
 
 With our dataset and our prompt, lets call our function.
 
-{r}
+``` {r}
 return_obj <- llm_generate(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = c("gpt-3.5-turbo", "gemini-1.5-flash"), max_tokens = 10)
 
 print(return_obj)
@@ -119,7 +117,7 @@ By default, the DBAI family of models returns an list of class 'llm_completion'.
 
 We can also omit this information and just return the dataframe directly without any additional information. To do this set `return_invisible = TRUE`.
 
-{r}
+``` {r}
 result_df <- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = TRUE)
 
 print(result_df)
@@ -127,7 +125,7 @@ print(result_df)
 
 `DBAI` functions are vectorized and can take multiple prompts at the same time and return multiple results. Let's extend our first example.
 
-{r}
+``` {r}
 sample_df <- data.frame(
   year = c(1964, 1998, 1979, 1981),
   gender = c("Male", "Female", "Male", "Female"),
@@ -151,7 +149,7 @@ outputVec <- c("Vote", "Party")
 
 Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.
 
-{r}
+``` {r}
 sample_df <- gpt(sample_df, input = "demo", output = outputVec, prompt = prompts, model = "gpt-3.5-turbo", return_invisible = TRUE)
 
 print(sample_df)
@@ -190,7 +188,7 @@ It is not advised to use temperature, top_p, or top_k at the same time. Some mod
 
 Let's look at another example. One where AI tools can really shine - Textual Analysis!
 
-{r}
+``` {r}
 messages <- data.frame(id = c(1, 2, 1), 
                        message = c("Guns are great", 
                                    "i think guns are bad", 
@@ -219,7 +217,7 @@ One of the most useful arguments is `repair`. This special repair mode seeks to 
 
 This is a fully built R Package and as such it has documentation available. If you ever want to view the documentation, just call the `?` function. This will give you an overview of the function and detailed information on each argument to the function. When switching model providers be sure to check the defaults and ranges on various model parameters as some differ slightly between model providers.
 
-{r}
+``` {r}
 ?gpt
 ?claude
 ?gemini
