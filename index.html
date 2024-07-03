@@ -60,6 +60,7 @@
   <main id="main" class="col-md-9"><div class="section level2">
 <h2 id="dbai">DBAI<a class="anchor" aria-label="anchor" href="#dbai"></a>
 </h2>
+<p>Codeblocks</p>
 <p>DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API’s. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.</p>
 <p>DBAI supports the following companies and models</p>
 <ul>
@@ -106,63 +107,93 @@
 <h2 id="loading-the-package">Loading the Package<a class="anchor" aria-label="anchor" href="#loading-the-package"></a>
 </h2>
 <p>DBAI is hosted on github. You can install packages from github by using the <code><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak::pak()</a></code> function. This is the equivalent to installing a package from CRAN using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, and only needs to be done once.</p>
-<p><code>{r} pak::pak("Adam-Hubbs/DBAI")</code></p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"Adam-Hubbs/DBAI"</span><span class="op">)</span></span></code></pre></div>
 <p>To load the package into memory, use the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function as you would a package from CRAN.</p>
-<p><code>{r} library(DBAI)</code></p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Adam-Hubbs/DBAI" class="external-link">DBAI</a></span><span class="op">)</span></span></code></pre></div>
 <p>There is one more step we must do before using this package. We need to set the API Key. We will need to set this information in an environmental variable so the R package can recognize it. This needs to be done once per R session. You only need the API Key for the model provider you want to use. For example, if you only care about access to Claude models then you only need the Anthropic API Key. If you only want to run OpenAI’s models you only need the OpenAI API Key, etc.</p>
-<p>``` {r} Sys.setenv( OPENAI_API_KEY = ‘XXXXXXXXXXX’ )</p>
-<p>Sys.setenv( ANTHROPIC_API_KEY = ‘XXXXXXXXXXXX’ )</p>
-<p>Sys.setenv( GOOGLE_API_KEY = ‘XXXXXXXXXXXX’ )</p>
-<pre><code>
-## Example Data
-
-Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. See the `glue` package for how to automate this. Let's take this information and try to predict who they voted for in the 2020 presidential election.
-
-``` {r}
-sample_df &lt;- data.frame(
-  year = c(1964, 1998, 1979, 1981),
-  gender = c("Male", "Female", "Male", "Female"),
-  occupation = c("Farmer", "Investment Banker", "Lawyer", "Social Worker"),
-  location = c("Kansas", "New York", "Phoenix", "Baltimore"),
-  race = c("White", "White", "Hispanic", "Black"),
-  religion = c("Evangelical Protestant", "Catholic", "Catholic", "Muslim"),
-  demo = c(
-    "60 year old white man from Kansas. Is an evangelical protestant and a farmer.",
-    "26 year old white female investment banker from New York. Is a Catholic.",
-    "45 year old male lawyer from Phoenix. Is a hispanic catholic.",
-    "43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."))
-    
-  
-  
-prompt &lt;- "I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</code></pre>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
+<span>  OPENAI_API_KEY <span class="op">=</span> <span class="st">'XXXXXXXXXXX'</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
+<span>  ANTHROPIC_API_KEY <span class="op">=</span> <span class="st">'XXXXXXXXXXXX'</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
+<span>  GOOGLE_API_KEY <span class="op">=</span> <span class="st">'XXXXXXXXXXXX'</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="example-data">Example Data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+</h2>
+<p>Let’s input some example data and use this function. We’ll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called ‘demo’. See the <code>glue</code> package for how to automate this. Let’s take this information and try to predict who they voted for in the 2020 presidential election.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="va">sample_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1964</span>, <span class="fl">1998</span>, <span class="fl">1979</span>, <span class="fl">1981</span><span class="op">)</span>,</span>
+<span>  gender <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
+<span>  occupation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Farmer"</span>, <span class="st">"Investment Banker"</span>, <span class="st">"Lawyer"</span>, <span class="st">"Social Worker"</span><span class="op">)</span>,</span>
+<span>  location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Kansas"</span>, <span class="st">"New York"</span>, <span class="st">"Phoenix"</span>, <span class="st">"Baltimore"</span><span class="op">)</span>,</span>
+<span>  race <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"White"</span>, <span class="st">"White"</span>, <span class="st">"Hispanic"</span>, <span class="st">"Black"</span><span class="op">)</span>,</span>
+<span>  religion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Evangelical Protestant"</span>, <span class="st">"Catholic"</span>, <span class="st">"Catholic"</span>, <span class="st">"Muslim"</span><span class="op">)</span>,</span>
+<span>  demo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"60 year old white man from Kansas. Is an evangelical protestant and a farmer."</span>,</span>
+<span>    <span class="st">"26 year old white female investment banker from New York. Is a Catholic."</span>,</span>
+<span>    <span class="st">"45 year old male lawyer from Phoenix. Is a hispanic catholic."</span>,</span>
+<span>    <span class="st">"43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."</span><span class="op">)</span><span class="op">)</span></span>
+<span>    </span>
+<span>  </span>
+<span>  </span>
+<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</span></span></code></pre></div>
 <p>With our dataset and our prompt, lets call our function.</p>
-<p>``` {r} return_obj &lt;- llm_generate(source = sample_df, input = “demo”, output = “Vote”, prompt = prompt, model = c(“gpt-3.5-turbo”, “gemini-1.5-flash”), max_tokens = 10)</p>
-<p>print(return_obj)</p>
-<pre><code>
-Here we call out function `llm_generate()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
-
-Go ahead and run this and examine the results.
-
-By default, the DBAI family of models returns an list of class 'llm_completion'. The first item in the list is the returned Data frame with the new column of results. It then returns the prompt, the model, the model provider, the date it was ran on, and a final object containing miscellaneous meta-data that is specific to each provider. llm_completion objects provide a way to track various meta-data.
-
-We can also omit this information and just return the dataframe directly without any additional information. To do this set `return_invisible = TRUE`.
-
-``` {r}
-result_df &lt;- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = TRUE)
-
-print(result_df)</code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="va">return_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span>source <span class="op">=</span> <span class="va">sample_df</span>, input <span class="op">=</span> <span class="st">"demo"</span>, output <span class="op">=</span> <span class="st">"Vote"</span>, prompt <span class="op">=</span> <span class="va">prompt</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gpt-3.5-turbo"</span>, <span class="st">"gemini-1.5-flash"</span><span class="op">)</span>, max_tokens <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">return_obj</span><span class="op">)</span></span></code></pre></div>
+<p>Here we call out function <code><a href="reference/llm_generate.html">llm_generate()</a></code> and tell it the source of our data is “sample_df”, column of data we want processed is called “demo”. We want it to spit out the results in a column called “Vote”, the prompt we are using is “prompt”, the model is “gpt-3.5-turbo”.</p>
+<p>Go ahead and run this and examine the results.</p>
+<p>By default, the DBAI family of models returns an list of class ‘llm_completion’. The first item in the list is the returned Data frame with the new column of results. It then returns the prompt, the model, the model provider, the date it was ran on, and a final object containing miscellaneous meta-data that is specific to each provider. llm_completion objects provide a way to track various meta-data.</p>
+<p>We can also omit this information and just return the dataframe directly without any additional information. To do this set <code>return_invisible = TRUE</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="va">result_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gpt.html">gpt</a></span><span class="op">(</span>source <span class="op">=</span> <span class="va">sample_df</span>, input <span class="op">=</span> <span class="st">"demo"</span>, output <span class="op">=</span> <span class="st">"Vote"</span>, prompt <span class="op">=</span> <span class="va">prompt</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, return_invisible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_df</span><span class="op">)</span></span></code></pre></div>
 <p><code>DBAI</code> functions are vectorized and can take multiple prompts at the same time and return multiple results. Let’s extend our first example.</p>
-<p>``` {r} sample_df &lt;- data.frame( year = c(1964, 1998, 1979, 1981), gender = c(“Male”, “Female”, “Male”, “Female”), occupation = c(“Farmer”, “Investment Banker”, “Lawyer”, “Social Worker”), location = c(“Kansas”, “New York”, “Phoenix”, “Baltimore”), race = c(“White”, “White”, “Hispanic”, “Black”), religion = c(“Evangelical Protestant”, “Catholic”, “Catholic”, “Muslim”), demo = c( “60 year old white man from Kansas. Is an evangelical protestant and a farmer.”, “26 year old white female investment banker from New York. Is a Catholic.”, “45 year old male lawyer from Phoenix. Is a hispanic catholic.”, “43 year old black female. Works as a social worker in Baltimore and is a practicing muslim.”))</p>
-<p>prompt &lt;- “I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say ‘Trump’ or ‘Biden’ only. Do not say anything else.”</p>
-<p>prompt2 &lt;- “I will give you demographic information. I want you to predict what political party they identify with or lean torwards. Make your best guess if you are unsure. Say ‘Republican’ or ‘Democratic’ only. Do not say anything else.”</p>
-<p>prompts &lt;- c(prompt, prompt2) outputVec &lt;- c(“Vote”, “Party”)</p>
-<pre><code>
-Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.
-
-``` {r}
-sample_df &lt;- gpt(sample_df, input = "demo", output = outputVec, prompt = prompts, model = "gpt-3.5-turbo", return_invisible = TRUE)
-
-print(sample_df)</code></pre>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="va">sample_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1964</span>, <span class="fl">1998</span>, <span class="fl">1979</span>, <span class="fl">1981</span><span class="op">)</span>,</span>
+<span>  gender <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
+<span>  occupation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Farmer"</span>, <span class="st">"Investment Banker"</span>, <span class="st">"Lawyer"</span>, <span class="st">"Social Worker"</span><span class="op">)</span>,</span>
+<span>  location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Kansas"</span>, <span class="st">"New York"</span>, <span class="st">"Phoenix"</span>, <span class="st">"Baltimore"</span><span class="op">)</span>,</span>
+<span>  race <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"White"</span>, <span class="st">"White"</span>, <span class="st">"Hispanic"</span>, <span class="st">"Black"</span><span class="op">)</span>,</span>
+<span>  religion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Evangelical Protestant"</span>, <span class="st">"Catholic"</span>, <span class="st">"Catholic"</span>, <span class="st">"Muslim"</span><span class="op">)</span>,</span>
+<span>  demo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"60 year old white man from Kansas. Is an evangelical protestant and a farmer."</span>,</span>
+<span>    <span class="st">"26 year old white female investment banker from New York. Is a Catholic."</span>,</span>
+<span>    <span class="st">"45 year old male lawyer from Phoenix. Is a hispanic catholic."</span>,</span>
+<span>    <span class="st">"43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."</span><span class="op">)</span><span class="op">)</span></span>
+<span>    </span>
+<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</span></span>
+<span></span>
+<span><span class="va">prompt2</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict what political party they identify with or lean torwards. Make your best guess if you are unsure. Say 'Republican' or 'Democratic' only. Do not say anything else."</span></span>
+<span></span>
+<span><span class="va">prompts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">prompt</span>, <span class="va">prompt2</span><span class="op">)</span></span>
+<span><span class="va">outputVec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vote"</span>, <span class="st">"Party"</span><span class="op">)</span></span></code></pre></div>
+<p>Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="va">sample_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gpt.html">gpt</a></span><span class="op">(</span><span class="va">sample_df</span>, input <span class="op">=</span> <span class="st">"demo"</span>, output <span class="op">=</span> <span class="va">outputVec</span>, prompt <span class="op">=</span> <span class="va">prompts</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, return_invisible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sample_df</span><span class="op">)</span></span></code></pre></div>
 <p>We only made a few minor changes to the function call. This time we pass a vector of outputs and a vector of prompts. When we run this chunk we will now get two columns of data.</p>
 <p>Lets take a look at some of the other argument options. We will discuss four common parameters for Large Language Models, <code>temperature</code>, <code>top_p</code>, <code>top_k</code>, and <code>max_tokens</code>. The first three of these parameters are ways to change how deterministic or random the response will be., and the last deals with how long the response is.</p>
 <p><code>Temperature</code> specifies how repetitive and analytical , or creative and random the responses are. For our models, temperature runs between 0 (Analytical) and 2 (Creative). Setting the temperature too low can lead to the exact same results for many calls, regardless of data. It can also be hyper-sensitive to examples in the prompt. Setting the temperature too high can lead the LLM to hallucinate and make up things that aren’t real. By default, the temperature is 1, a happy medium. You may want to play around with temperature to suit your specific needs.</p>
@@ -217,33 +248,39 @@ print(sample_df)</code></pre>
 <h2 id="another-example">Another Example<a class="anchor" aria-label="anchor" href="#another-example"></a>
 </h2>
 <p>Let’s look at another example. One where AI tools can really shine - Textual Analysis!</p>
-<p>``` {r} messages &lt;- data.frame(id = c(1, 2, 1), message = c(“Guns are great”, “i think guns are bad”, “They protect my family and keep the king of england out of my face”))</p>
-<p>good &lt;- “I will give you a statement. I want you to tell me if the overall sentiment is ‘Pro-gun’ or ‘Anti-gun’. Say ‘Pro-gun’ or ‘Anti-gun’ only.”</p>
-<p>messages &lt;- gpt(messages, input = “message”, output = “GunStance”, prompt = good, model = “gpt-3.5-turbo”, max_tokens = 5, return_invisible = TRUE)</p>
-<p>View(messages)</p>
-<pre><code>
-Here we ask it to categorize statements into either Pro-gun or Anti-gun stances.
-
-## Advanced Features
-
-Let's look at some of the other features we haven't talked about yet.
-
-Sometimes you just want to run the same thing a couple times just to make sure. Perhaps you are asking Claude is there is personally identifiable information in a certain field, or maybe you want to have Gemini deduce a topic from a long comment. For some tasks doing it multiple times is a good indication that your results are internally valid. This is where the `iterations` argument comes in. You can pass iterations any integer value and the function will rerun the call that many times. It will add a \_X at the end of the output column for each iteration \_2 for the second, \_3 for the third, etc. This can stack with having multiple prompts, so thinking back to the Vote and Party example if we also set iterations to equal 2, then it would run both Vote and Party twice.
-
-You may have noticed that there is a handy progress bar that pops up as you run the functions. It shows you helpful information like the number of completed calls out of the total number of calls, and the estimated time remaining. If like to live in suspense however, it is possible to disable this. Just set `progress = FALSE`.
-
-One of the most useful arguments is `repair`. This special repair mode seeks to solve common problems that you will most likely encounter. Perhaps you get rate-limited for trying to run a huge dataset all at once, or maybe OpenAI's servers are busy and they deny your request. For whatever reason you have an error popping up when the function finishes. Do Not Fret! Repair mode is here to save the day! Simply rerun the function with `repair = TRUE`, and the function will pick up right where it left off. Repair mode works regardless of if `return_invisible` was set to True or False (i.e. you can pass it either a dataframe or a llm_completion object) and it will figure it out for you! One caveat thought, the progress bar isn't yet compatible with repair mode, so you won't get to see the pretty bar inch across the screen.
-
-## Documentation
-
-This is a fully built R Package and as such it has documentation available. If you ever want to view the documentation, just call the `?` function. This will give you an overview of the function and detailed information on each argument to the function. When switching model providers be sure to check the defaults and ranges on various model parameters as some differ slightly between model providers.
-
-``` {r}
-?gpt
-?claude
-?gemini
-?llm_generate
-?list_models</code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="va">messages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, </span>
+<span>                       message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Guns are great"</span>, </span>
+<span>                                   <span class="st">"i think guns are bad"</span>, </span>
+<span>                                   <span class="st">"They protect my family and keep the king of england out of my face"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">good</span> <span class="op">&lt;-</span> <span class="st">"I will give you a statement. I want you to tell me if the overall sentiment is 'Pro-gun' or 'Anti-gun'. Say 'Pro-gun' or 'Anti-gun' only."</span></span>
+<span></span>
+<span><span class="va">messages</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gpt.html">gpt</a></span><span class="op">(</span><span class="va">messages</span>, input <span class="op">=</span> <span class="st">"message"</span>, output <span class="op">=</span> <span class="st">"GunStance"</span>, prompt <span class="op">=</span> <span class="va">good</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, max_tokens <span class="op">=</span> <span class="fl">5</span>, return_invisible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="va">messages</span><span class="op">)</span></span></code></pre></div>
+<p>Here we ask it to categorize statements into either Pro-gun or Anti-gun stances.</p>
+</div>
+<div class="section level2">
+<h2 id="advanced-features">Advanced Features<a class="anchor" aria-label="anchor" href="#advanced-features"></a>
+</h2>
+<p>Let’s look at some of the other features we haven’t talked about yet.</p>
+<p>Sometimes you just want to run the same thing a couple times just to make sure. Perhaps you are asking Claude is there is personally identifiable information in a certain field, or maybe you want to have Gemini deduce a topic from a long comment. For some tasks doing it multiple times is a good indication that your results are internally valid. This is where the <code>iterations</code> argument comes in. You can pass iterations any integer value and the function will rerun the call that many times. It will add a _X at the end of the output column for each iteration _2 for the second, _3 for the third, etc. This can stack with having multiple prompts, so thinking back to the Vote and Party example if we also set iterations to equal 2, then it would run both Vote and Party twice.</p>
+<p>You may have noticed that there is a handy progress bar that pops up as you run the functions. It shows you helpful information like the number of completed calls out of the total number of calls, and the estimated time remaining. If like to live in suspense however, it is possible to disable this. Just set <code>progress = FALSE</code>.</p>
+<p>One of the most useful arguments is <code>repair</code>. This special repair mode seeks to solve common problems that you will most likely encounter. Perhaps you get rate-limited for trying to run a huge dataset all at once, or maybe OpenAI’s servers are busy and they deny your request. For whatever reason you have an error popping up when the function finishes. Do Not Fret! Repair mode is here to save the day! Simply rerun the function with <code>repair = TRUE</code>, and the function will pick up right where it left off. Repair mode works regardless of if <code>return_invisible</code> was set to True or False (i.e. you can pass it either a dataframe or a llm_completion object) and it will figure it out for you! One caveat thought, the progress bar isn’t yet compatible with repair mode, so you won’t get to see the pretty bar inch across the screen.</p>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>This is a fully built R Package and as such it has documentation available. If you ever want to view the documentation, just call the <code>?</code> function. This will give you an overview of the function and detailed information on each argument to the function. When switching model providers be sure to check the defaults and ranges on various model parameters as some differ slightly between model providers.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="op">{</span><span class="va">r</span><span class="op">}</span></span>
+<span><span class="op">?</span><span class="va">gpt</span></span>
+<span><span class="op">?</span><span class="va">claude</span></span>
+<span><span class="op">?</span><span class="va">gemini</span></span>
+<span><span class="op">?</span><span class="va">llm_generate</span></span>
+<span><span class="op">?</span><span class="va">list_models</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="section"></h2>
