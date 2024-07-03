@@ -3,7 +3,7 @@ Title: AI Tools for R Datasets
 Version: 0.0.0.9012
 Authors@R: 
     person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
-Description: R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, but support for other API's is coming soon.
+Description: R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -14,7 +14,11 @@ Depends:
     R (>= 4.1.0)
 Imports: 
     dplyr (>= 1.0.0),
-    rlang,
+    rlang (>= 1.1.0),
     httr,
     jsonlite,
-    progress
+    progress,
+    cli (>= 3.6.0)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
