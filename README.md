@@ -30,14 +30,6 @@ DBAI supports the following companies and models
 
     -   Gemma models (through Deep Infra) **Coming Soon**
 
--   Deep Infra via `mistral`, `llama`, or `deep-infra` **Coming Soon**
-
-    -   Meta's Llama models
-
-    -   Mistrals open source models
-
-    -   Gemma (Google), Wizard (Microsoft), and several other smaller open source projects
-
 In addition, all of these models can be accessed with the alias function `llm_generate`.
 
 All of these models can be called using similar syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website.
@@ -47,8 +39,6 @@ All of these models can be called using similar syntax. The main difference is e
 -   <https://www.anthropic.com/api>
 
 -   <https://ai.google.dev/gemini-api>
-
--   <https://deepinfra.com/>
 
 ### Costs
 
@@ -60,10 +50,10 @@ Rate limits are restrictions on how many API calls you can make in a given perio
 
 ## Loading the Package
 
-DBAI is hosted on github. You can install packages from github by using the `remotes::install_github()` function. This is the equivalent to installing a package from CRAN using `install.packages()`, and only needs to be done once.
+DBAI is hosted on github. You can install packages from github by using the `pak::pak()` function. This is the equivalent to installing a package from CRAN using `install.packages()`, and only needs to be done once.
 
 ```{r}
-remotes::install_github("Adam-Hubbs/DBAI")
+pak::pak("Adam-Hubbs/DBAI")
 ```
 
 To load the package into memory, use the `library()` function as you would a package from CRAN.
@@ -90,7 +80,7 @@ Sys.setenv(
 
 ## Example Data
 
-Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. Let's take this information and try to predict who they voted for in the 2020 presidential election.
+Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. See the `glue` package for how to automate this. Let's take this information and try to predict who they voted for in the 2020 presidential election.
 
 ```{r}
 sample_df <- data.frame(
@@ -119,7 +109,7 @@ return_obj <- llm_generate(source = sample_df, input = "demo", output = "Vote", 
 print(return_obj)
 ```
 
-Here we call out function `gpt()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
+Here we call out function `llm_generate()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
 
 Go ahead and run this and examine the results.
 
@@ -188,7 +178,7 @@ LLM's work by predicting the next token (roughly analogous to a syllable or word
 
 Here we see that the most likely next word is 'Wife' but there are many other options. `Top_k` restricts the sample to the top K number of options. For example, if `top_k` were set to 3 in this example, the LLM would choose between 'Wife', 'Dog', and 'Son'. `Top_p` similarly restricts the sample but instead of giving a fixed number of options, it gives a fixed probability. If out `top_p` were set to .5, then 'Wife' and 'Dog' would be considered because they represent the least number of options needed to reach at least a .5 probability.
 
-Lets say the LLM ended up choosing 'Wife'. Lets look at the wrod after wife for another example of the difference between top_k and top_p. Maybe the next word after 'Wife' is a little harder to determine and there were 12 words that combined together reached .5 probability. In this case using the `top_p` method those 12 words would be options for the LLM. Using the `top_k` method still only the top 3 would be considered.
+Lets say the LLM ended up choosing 'Wife'. Lets look at the word after wife for another example of the difference between top_k and top_p. Maybe the next word after 'Wife' is a little harder to determine and there were 12 words that combined together reached .5 probability. In this case using the `top_p` method those 12 words would be options for the LLM. Using the `top_k` method still only the top 3 would be considered.
 
 It is not advised to use temperature, top_p, or top_k at the same time. Some models will let you and some won't. Unless you really have to, we recommend only changing temperature.
 
@@ -235,4 +225,4 @@ This is a fully built R Package and as such it has documentation available. If y
 ?list_models
 ```
 
-## 
+##
