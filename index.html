@@ -60,7 +60,6 @@
   <main id="main" class="col-md-9"><div class="section level2">
 <h2 id="dbai">DBAI<a class="anchor" aria-label="anchor" href="#dbai"></a>
 </h2>
-<p>BT_FALSE</p>
 <p>DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API’s. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.</p>
 <p>DBAI supports the following companies and models</p>
 <ul>
@@ -107,14 +106,11 @@
 <h2 id="loading-the-package">Loading the Package<a class="anchor" aria-label="anchor" href="#loading-the-package"></a>
 </h2>
 <p>DBAI is hosted on github. You can install packages from github by using the <code><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak::pak()</a></code> function. This is the equivalent to installing a package from CRAN using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, and only needs to be done once.</p>
-<p>{r} pak::pak(“Adam-Hubbs/DBAI”)</p>
-<pre><code>
-To load the package into memory, use the `library()` function as you would a package from CRAN.
-
-{r}
-library(DBAI)</code></pre>
+<p><code>{r} pak::pak("Adam-Hubbs/DBAI")</code></p>
+<p>To load the package into memory, use the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function as you would a package from CRAN.</p>
+<p><code>{r} library(DBAI)</code></p>
 <p>There is one more step we must do before using this package. We need to set the API Key. We will need to set this information in an environmental variable so the R package can recognize it. This needs to be done once per R session. You only need the API Key for the model provider you want to use. For example, if you only care about access to Claude models then you only need the Anthropic API Key. If you only want to run OpenAI’s models you only need the OpenAI API Key, etc.</p>
-<p>{r} Sys.setenv( OPENAI_API_KEY = ‘XXXXXXXXXXX’ )</p>
+<p>``` {r} Sys.setenv( OPENAI_API_KEY = ‘XXXXXXXXXXX’ )</p>
 <p>Sys.setenv( ANTHROPIC_API_KEY = ‘XXXXXXXXXXXX’ )</p>
 <p>Sys.setenv( GOOGLE_API_KEY = ‘XXXXXXXXXXXX’ )</p>
 <pre><code>
@@ -122,7 +118,7 @@ library(DBAI)</code></pre>
 
 Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. See the `glue` package for how to automate this. Let's take this information and try to predict who they voted for in the 2020 presidential election.
 
-{r}
+``` {r}
 sample_df &lt;- data.frame(
   year = c(1964, 1998, 1979, 1981),
   gender = c("Male", "Female", "Male", "Female"),
@@ -140,7 +136,7 @@ sample_df &lt;- data.frame(
   
 prompt &lt;- "I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</code></pre>
 <p>With our dataset and our prompt, lets call our function.</p>
-<p>{r} return_obj &lt;- llm_generate(source = sample_df, input = “demo”, output = “Vote”, prompt = prompt, model = c(“gpt-3.5-turbo”, “gemini-1.5-flash”), max_tokens = 10)</p>
+<p>``` {r} return_obj &lt;- llm_generate(source = sample_df, input = “demo”, output = “Vote”, prompt = prompt, model = c(“gpt-3.5-turbo”, “gemini-1.5-flash”), max_tokens = 10)</p>
 <p>print(return_obj)</p>
 <pre><code>
 Here we call out function `llm_generate()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
@@ -151,19 +147,19 @@ By default, the DBAI family of models returns an list of class 'llm_completion'.
 
 We can also omit this information and just return the dataframe directly without any additional information. To do this set `return_invisible = TRUE`.
 
-{r}
+``` {r}
 result_df &lt;- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = TRUE)
 
 print(result_df)</code></pre>
 <p><code>DBAI</code> functions are vectorized and can take multiple prompts at the same time and return multiple results. Let’s extend our first example.</p>
-<p>{r} sample_df &lt;- data.frame( year = c(1964, 1998, 1979, 1981), gender = c(“Male”, “Female”, “Male”, “Female”), occupation = c(“Farmer”, “Investment Banker”, “Lawyer”, “Social Worker”), location = c(“Kansas”, “New York”, “Phoenix”, “Baltimore”), race = c(“White”, “White”, “Hispanic”, “Black”), religion = c(“Evangelical Protestant”, “Catholic”, “Catholic”, “Muslim”), demo = c( “60 year old white man from Kansas. Is an evangelical protestant and a farmer.”, “26 year old white female investment banker from New York. Is a Catholic.”, “45 year old male lawyer from Phoenix. Is a hispanic catholic.”, “43 year old black female. Works as a social worker in Baltimore and is a practicing muslim.”))</p>
+<p>``` {r} sample_df &lt;- data.frame( year = c(1964, 1998, 1979, 1981), gender = c(“Male”, “Female”, “Male”, “Female”), occupation = c(“Farmer”, “Investment Banker”, “Lawyer”, “Social Worker”), location = c(“Kansas”, “New York”, “Phoenix”, “Baltimore”), race = c(“White”, “White”, “Hispanic”, “Black”), religion = c(“Evangelical Protestant”, “Catholic”, “Catholic”, “Muslim”), demo = c( “60 year old white man from Kansas. Is an evangelical protestant and a farmer.”, “26 year old white female investment banker from New York. Is a Catholic.”, “45 year old male lawyer from Phoenix. Is a hispanic catholic.”, “43 year old black female. Works as a social worker in Baltimore and is a practicing muslim.”))</p>
 <p>prompt &lt;- “I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say ‘Trump’ or ‘Biden’ only. Do not say anything else.”</p>
 <p>prompt2 &lt;- “I will give you demographic information. I want you to predict what political party they identify with or lean torwards. Make your best guess if you are unsure. Say ‘Republican’ or ‘Democratic’ only. Do not say anything else.”</p>
 <p>prompts &lt;- c(prompt, prompt2) outputVec &lt;- c(“Vote”, “Party”)</p>
 <pre><code>
 Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.
 
-{r}
+``` {r}
 sample_df &lt;- gpt(sample_df, input = "demo", output = outputVec, prompt = prompts, model = "gpt-3.5-turbo", return_invisible = TRUE)
 
 print(sample_df)</code></pre>
@@ -221,7 +217,7 @@ print(sample_df)</code></pre>
 <h2 id="another-example">Another Example<a class="anchor" aria-label="anchor" href="#another-example"></a>
 </h2>
 <p>Let’s look at another example. One where AI tools can really shine - Textual Analysis!</p>
-<p>{r} messages &lt;- data.frame(id = c(1, 2, 1), message = c(“Guns are great”, “i think guns are bad”, “They protect my family and keep the king of england out of my face”))</p>
+<p>``` {r} messages &lt;- data.frame(id = c(1, 2, 1), message = c(“Guns are great”, “i think guns are bad”, “They protect my family and keep the king of england out of my face”))</p>
 <p>good &lt;- “I will give you a statement. I want you to tell me if the overall sentiment is ‘Pro-gun’ or ‘Anti-gun’. Say ‘Pro-gun’ or ‘Anti-gun’ only.”</p>
 <p>messages &lt;- gpt(messages, input = “message”, output = “GunStance”, prompt = good, model = “gpt-3.5-turbo”, max_tokens = 5, return_invisible = TRUE)</p>
 <p>View(messages)</p>
@@ -242,7 +238,7 @@ One of the most useful arguments is `repair`. This special repair mode seeks to 
 
 This is a fully built R Package and as such it has documentation available. If you ever want to view the documentation, just call the `?` function. This will give you an overview of the function and detailed information on each argument to the function. When switching model providers be sure to check the defaults and ranges on various model parameters as some differ slightly between model providers.
 
-{r}
+``` {r}
 ?gpt
 ?claude
 ?gemini
