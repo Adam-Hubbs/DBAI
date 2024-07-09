@@ -14,6 +14,7 @@ print.llm_completion_DBAI <- function(x, ..., all = TRUE) {
     cli::cli_h2("Values:")
   } 
   #xchar <- as.character(x)
+  
   xchar <- x |> attributes() <- NULL
   NextMethod(xchar)
 }
