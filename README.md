@@ -28,7 +28,6 @@ DBAI supports the following companies and models
 
     -   Gemini 1.5 family of models
 
-
 In addition, all of these models can be accessed with the prefered alias function `llm_generate()`.
 
 All of these models can be called using similar syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website.
@@ -224,4 +223,4 @@ This is a fully built R Package and as such it has documentation available. If y
 ?list_models
 ```
 
-##
+## 
