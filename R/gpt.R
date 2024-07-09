@@ -65,9 +65,6 @@ gpt <- function(source,
     stop("Dataframe is null. Please provide a dataframe.")
   }
 
-  if (any(class(source) == "llm_completion")) {
-    source <- source$Result
-  }
 
   if (!is.data.frame(source)) {
     stop("Input 'source' must be a dataframe.")
@@ -98,10 +95,6 @@ gpt <- function(source,
 
 
   ### Other Function Parameters
-  if(!is.logical(return_invisible) || length(return_invisible) != 1 || is.na(return_invisible)) {
-    stop("Return Invisible must be a length one boolean.")
-  }
-
   if(!is.logical(repair) || length(repair) != 1 || is.na(repair)) {
     stop("Return Invisible must be a length one boolean.")
   }
@@ -247,17 +240,6 @@ gpt <- function(source,
   }
 
 
-
-  ### Get Raw Metadata ---------------------------------
-  if(return_invisible == FALSE && is.null(llmObj)) {
-    raw_metadata <- completion(input = source[[input]][1], prompt = prompt[1])
-    company <- "OpenAI"
-    date <- Sys.Date()
-    llmObj <- list(NULL, prompt, model, company, date, raw_metadata)
-  }
-
-
-
   ### Main Call. Checks if input is valid and calls the completion function -----------------------
   CallGPT <- function(parentInfo, input, prompt) {
     if(progress == TRUE) parentInfo$pb$tick()
@@ -347,13 +329,11 @@ gpt <- function(source,
 
 
 
-  ### Return Object or invisible --------------------------
-  if(return_invisible == FALSE) {
-    llmObj[[1]] <- source
-    class(llmObj) <- c("llm_completion", "list")
-    names(llmObj) <- c("Result", "Prompt", "Model", "Model_Provider", "Date", "Raw")
-    return(llmObj)
-  } else {
+  ### Return Object --------------------------
+    attr(source, "Model") <- model
+    attr(source, "Model_Provider") <- "OpenAI"
+    attr(source, "Date") <- Sys.Date()
+    attr(source, "Raw") <- completion(input = source[[input]][1], prompt = prompt[1])
+    attr(source, "Prompt") <- prompt
     return(source)
-  }
 }
