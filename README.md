@@ -51,7 +51,7 @@ Rate limits are restrictions on how many API calls you can make in a given perio
 DBAI is hosted on github. You can install packages from github by using the `pak::pak()` function. This is the equivalent to installing a package from CRAN using `install.packages()`, and only needs to be done once.
 
 ``` r
-pak::pak_install("Adam-Hubbs/DBAI")
+remotes::install_github("Adam-Hubbs/DBAI")
 ```
 
 To load the package into memory, use the `library()` function as you would a package from CRAN.
