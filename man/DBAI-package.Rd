@@ -6,7 +6,7 @@
 \alias{DBAI-package}
 \title{DBAI: AI Tools for R Datasets}
 \description{
-R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, but support for other API's is coming soon.
+R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.
 }
 \seealso{
 Useful links:

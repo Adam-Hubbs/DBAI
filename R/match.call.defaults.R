@@ -12,5 +12,5 @@ match.call.defaults <- function(...) {
     call[i] <- list( formals[[i]] )
 
 
-  match.call(sys.function(sys.parent()), call)
+  deparse(match.call(sys.function(sys.parent()), call), width.cutoff = 500)
 }

@@ -43,7 +43,6 @@ gpt.default <- function(source,
 
   ### Validate Statements ----------------------------------
 
-  print("gpt.default")
 
   ### API Key
   if(is.null(openai_api_key) || openai_api_key == "") {

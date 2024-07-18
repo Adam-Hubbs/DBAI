@@ -17,5 +17,7 @@
 #' @importFrom jsonlite fromJSON
 #' @importFrom jsonlite flatten
 #' @importFrom progress progress_bar
+#' @importFrom vctrs vec_ptype2
+#' @importFrom vctrs vec_cast
 ## usethis namespace: end
 NULL
