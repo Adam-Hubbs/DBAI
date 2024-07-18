@@ -15,7 +15,8 @@ gpt.character <- function(source,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 call = rlang::caller_env(),
-                output = "output") {
+                output = "output",
+                suppress_line_messages = FALSE) {
 
   ### Validate Statements ----------------------------------
 
@@ -82,12 +83,12 @@ gpt.character <- function(source,
   }
 
   if (!is.numeric(top_p) || length(top_p) != 1 || is.na(top_p) || top_p < 0 || top_p > 1) {
-    cli::cli_abort(c("{.var top_p} must be a number between {.code 0} and {.code 1}."), call = call)
+    cli::cli_abort(c("{.var top_p} must be a number between {.code 0} and {.code 1}.", x = "You supplied {.var {top_p}}."), call = call)
   }
 
   if (!is.null(temperature) && !is.null(top_p)) {
     if(temperature != 1 || top_p != 1) {
-      cli::cli_alert_warning(c("It is not recommended to specify both {.var temperature} and {.var top_p} at the same time. Some models may refuse to generate if both values are supplied."), call = call)
+      cli::cli_alert_warning(c("It is not recommended to specify both {.var temperature} and {.var top_p} at the same time. Some models may refuse to generate if both values are supplied."))
     }
   }
 
@@ -201,41 +202,35 @@ gpt.character <- function(source,
 
 
   ### Main Call. Checks if input is valid and calls the completion function -----------------------
-  CallGPT <- function(parentInfo, input, prompt) {
-    if(progress == TRUE) parentInfo$pb$tick()
-    ### Do not quit if there are NA's, just return NA for those rows
-    if(is.na(input)) {
-      parentInfo$NACount <- parentInfo$NACount + 1
-      return(NA)
-    } else if (input == "" || input == " ") {
-      parentInfo$EmptyCount <- parentInfo$EmptyCount + 1
-      return("")
-    } else {
-      ### Call to OpenAI Endpoint
-      completion(input, prompt)$choices$message.content
-    }
-  }
-
-
-
-
-  ### Main Loop ----------------------------------
-  process_element <- function(input, index) {
-    tryCatch({
-      result <- CallGPT(parentInfo, input, prompt)
-      return(result)
-    }, error = function(e) {
-      if(parentInfo$firstLineError == 0) {
-        parentInfo$firstLineError <- index
+  process_element <- function(input) {
+    working_vec <- NA
+    for (i in seq_along(input)) {
+      if(progress == TRUE) parentInfo$pb$tick()
+      if(is.na(input[i])) {
+        parentInfo$NACount <- parentInfo$NACount + 1
+        working_vec[i] <- NA
+      } else if (input[i] == "" || input[i] == " ") {
+        parentInfo$EmptyCount <- parentInfo$EmptyCount + 1
+        working_vec[i] <- ""
+      } else {
+        working_vec[i] <- tryCatch({completion(input[i], prompt)$choices$message.content}, error = function(e) {
+          #Suppress_line_messages = TRUE if this function is called from gpt.data.frame using repair mode and the indecies are wrong.
+          if (suppress_line_messages == FALSE) {
+            if(parentInfo$firstLineError == 0) {
+              parentInfo$firstLineError <- i
+            }
+            cli::cli_alert_warning(c("Error: Returning NA in row {i}", i = "Message: {e$message}"))
+          }
+          return(NA)
+        })
       }
-      message(paste("Error: Returning NA in row", index, "Message:", e$message))
-      return(NA)
-    })
+    }
+    return(working_vec)
   }
 
   # Apply the function to each element of the source vector
   if (length(source) > 1) {
-    output_vector <- unname(mapply(process_element, source, 1:length(source)))
+    output_vector <- process_element(source)
   } else {
     a <- completion(input = source, prompt = prompt)
     output_vector <- a$choices$message.content
@@ -247,7 +242,7 @@ gpt.character <- function(source,
   ### Warnings and Errors -----------------------------
   if(parentInfo$firstLineError > 0) {
     cli::cli_alert_warning("First Error Located in Row: {parentInfo$firstLineError}")
-    cli::cli_bullets(c(i = "This is could be a rate limit error. Check the website of the model provider for specific rate limits for your usage tier. Rerun this function again with repair=TRUE to continue processing once you are no longer rate-limited."))
+    cli::cli_bullets(c(i = "This is could be a rate limit error. Check the website of the model provider for specific rate limits for your usage tier. Rerun this function again with {.code repair=TRUE} to continue processing once you are no longer rate-limited."))
   }
 
   if(parentInfo$http_error > 0) {
@@ -270,9 +265,10 @@ gpt.character <- function(source,
   if(!exists("a", envir = environment())) {
     a <- completion(input = source[1], prompt = prompt)
   }
-  prompt <- prompt %||% source
+  if (prompt == "") {
+    prompt <- source
+  }
   output_vector <- new_llm_completion(output_vector, Call = Call, Prompt = prompt, Model = model, Model_Provider = "OpenAI", Date = Sys.Date(), Temperature = temperature, Raw = a)
 
   return(output_vector)
 }
-?"%||%"
