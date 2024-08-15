@@ -21,7 +21,8 @@
   frequency_penalty = 0,
   max_tokens = 4096,
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
-  openai_organization = NULL
+  openai_organization = NULL,
+  call = rlang::caller_env()
 )
 }
 \arguments{
@@ -34,8 +35,6 @@
 \item{prompt}{required; A string (Or vector of Strings for handling multiple operations at the same time) of prompts to be sent to the AI model.}
 
 \item{model}{required; a length one character vector.}
-
-\item{iterate_over}{optional; The variable that you want to iterate over. Defaults to \code{prompt}.}
 
 \item{iterations}{optional; An integer. Number of completions to generate for each prompt Defaults to \code{1}.}
 
@@ -58,6 +57,8 @@
 \item{openai_api_key}{required; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.}
 
 \item{openai_organization}{optional; defaults to \code{NULL}; a length one character vector. Specifies OpenAI organization.}
+
+\item{parentInfo}{Used internally. Do not supply.}
 }
 \value{
 A dataframe with the output column(s) created

@@ -16,15 +16,13 @@ gpt.character <- function(source,
                 openai_organization = NULL,
                 call = rlang::caller_env(),
                 output = "output",
-                suppress_line_messages = FALSE) {
+                parentInfo = NULL) {
 
   ### Validate Statements ----------------------------------
 
-
-
   ### API Key
   if(is.null(openai_api_key) || openai_api_key == "") {
-    cli::cli_abort(c(x = "API Key not found.", i = "Please set the {.envvar OPENAI_API_KEY} environment variable.", i = "Did you forget to set {.envvar OPENAI_API_KEY} with {.code Sys.env(OPENAI_API_KEY='XXXXX')}?"), call = call)
+    cli::cli_abort(c("API Key not found.", i = "Please set the {.envvar OPENAI_API_KEY} environment variable.", i = "Did you forget to set {.envvar OPENAI_API_KEY} with {.code Sys.env(OPENAI_API_KEY='XXXXX')}?"), call = call)
   }
 
   if (!is.character(openai_api_key) || length(openai_api_key) != 1) {
@@ -32,7 +30,7 @@ gpt.character <- function(source,
   }
 
   if(is.null(source)) {
-    cli::cli_abort(c(x = "{.var source} is missing.", i = "Did you forget to pass a dataframe, vector, or string to the function?"), call = call)
+    cli::cli_abort(c("{.var source} is missing.", i = "Did you forget to pass a dataframe, vector, or string to the function?"), call = call)
   }
 
   ### Prompt
@@ -42,27 +40,9 @@ gpt.character <- function(source,
     }
   }
 
-  ### Repair
-  if(!is.logical(repair) || length(repair) != 1 || is.na(repair)) {
-      cli::cli_abort(c("{.var repair} must either be {.code TRUE} or {.code FALSE}."), call = call)
-  }
-
-  if(repair == TRUE) {
-    missing_cols <- setdiff(output, colnames(source))
-    if (length(missing_cols) > 0) {
-      cli::cli_abort(c("Output not found in source.", i = "When using {.code repair=TRUE}, all elements of {.var output} must be present in {.var source}.", x = "{.var {missing_cols}} {?does/do} not appear in {.code source}."), call = call)
-    }
-  }
-
   ### Other Function Parameters
   if (!is.null(openai_organization) && (!is.character(openai_organization) || length(openai_organization) != 1)) {
     cli::cli_abort(c("{.var openai_organization} must be a length one character vector."), call = call)
-  }
-
-
-  ### Iterations
-  if (is.null(iterations) || !is.numeric(iterations) || length(iterations) != 1 || is.na(iterations) || iterations <= 0 || iterations %% 1 != 0) {
-    cli::cli_abort(c("{.code iterations} must be a positive integer."), call = call)
   }
 
   ### Progress
@@ -70,10 +50,7 @@ gpt.character <- function(source,
     cli::cli_abort(c("{.var progress} must either be {.var TRUE} or {.var FALSE}."), call = call)
   }
 
-
-
-
-     ### Other Model Parameters
+  ### Other Model Parameters
   if (is.null(model) || !is.character(model) || length(model) != 1 || is.na(model)) {
     cli::cli_abort(c("{.var model} must be a non-NA character vector."), call = call)
   }
@@ -121,14 +98,17 @@ gpt.character <- function(source,
   }
 
   ### End Validation ----------------------------------
-
-  Call <- match.call.defaults()
-
   ### Initialize Dummy Environment for Pass by reference system --
-  parentInfo <- new.env()
+  if(is.null(parentInfo)) {
+    parentInfo <- new.env()
+    parentInfo$df <- FALSE
+    Call <- match.call.defaults()
+  } else {
+    Call <- parentInfo$call
+  }
   parentInfo$NACount <- 0L
   parentInfo$EmptyCount <- 0L
-  parentInfo$http_error <- 0
+  parentInfo$http_error <- 0L
   parentInfo$firstLineError <- 0L
 
    if(length(source) < 3) {
@@ -137,7 +117,7 @@ gpt.character <- function(source,
 
 
   ### Initialize Progress Bar -----------------------------
-  if (progress == TRUE) {
+  if (progress == TRUE && parentInfo$df == FALSE) {
     parentInfo$pb <- progress::progress_bar$new(
       total = length(source) * length(prompt),
       format = "[:bar] :current/:total | :percent | :eta remaining"
@@ -258,7 +238,6 @@ gpt.character <- function(source,
     cli::cli_alert_warning("There are {parentInfo$EmptyCount} empty {? string/strings} in the input column.")
     cli::cli_bullets(c(i = "{parentInfo$EmptyCount} empty {? string/string's} introduced in the output."))
   }
-
 
 
   ### Return Object --------------------------

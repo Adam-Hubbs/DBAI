@@ -35,7 +35,8 @@ gpt <- function(source,
                 max_tokens = 4096,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
-                call = rlang::caller_env()) {
+                call = rlang::caller_env(),
+                parentInfo = NULL) {
   UseMethod("gpt")
 
 }

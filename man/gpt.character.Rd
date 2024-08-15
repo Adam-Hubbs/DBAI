@@ -21,7 +21,7 @@
   openai_organization = NULL,
   call = rlang::caller_env(),
   output = "output",
-  suppress_line_messages = FALSE
+  parentInfo = NULL
 )
 }
 \description{
