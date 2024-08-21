@@ -21,17 +21,16 @@
 gpt.data.frame <- function(source,
                 input,
                 output = "output",
-                prompt,
+                prompt = "",
                 model = "gpt-3.5-turbo",
-                iterate_over = "prompt",
                 iterations = 1,
                 repair = FALSE,
                 progress = TRUE,
-                temperature = 1,
-                top_p = 1,
-                n = 1,
-                presence_penalty = 0,
-                frequency_penalty = 0,
+                temperature = NULL,
+                top_p = NULL,
+                n = NULL,
+                presence_penalty = NULL,
+                frequency_penalty = NULL,
                 max_tokens = 4096,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
@@ -39,16 +38,98 @@ gpt.data.frame <- function(source,
                 parentInfo = NULL) {
 
   ### Validate Statements ----------------------------------
+  ### API KEY
+  if(is.null(openai_api_key) || openai_api_key == "" || is.na(openai_api_key)) {
+    cli::cli_abort(c("API Key not found.", i = "Please set the {.envvar OPENAI_API_KEY} environment variable.", i = "Did you forget to set {.envvar OPENAI_API_KEY} with {.code Sys.env(OPENAI_API_KEY='XXXXX')}?"), call = call)
+  }
+
+  if (!is.character(openai_api_key) || length(openai_api_key) != 1) {
+    cli::cli_abort(c("{.envvar OPENAI_API_KEY} must be a length one character vector.", i = "Did you forget to set {.envvar OPENAI_API_KEY} with {.code Sys.env(OPENAI_API_KEY='XXXXX')}?"), call = call)
+  }
+
+  ### SOURCE DATAFRAME
   if (length(source) == 0) {
     cli::cli_abort(c("The source dataframe is empty.", i = "Please provide a non-empty dataframe."), call = call)
   }
 
+  ### INPUT COLUMN
   if(is.null(input)) {
     cli::cli_abort(c("The input column is missing.", i = "Please provide a column name in the source dataframe."), call = call)
   } else if (!input %in% colnames(source)) {
     cli::cli_abort(c("The input column does not exist in the source dataframe.", x = "{.code {input}} not found in source", i = "Please provide a valid column name in the source dataframe."), call = call)
   }
-  #Here or in .character method?
+
+  ### PROMPT
+  if (!is.null(prompt)) {
+    if (!is.character(prompt)) {
+      cli::cli_abort(c("{.var prompt} (if supplied) must be a character vector.", x = "You supplied a {.cls {class(prompt)}} vector."), call = call)
+    }
+  }
+  ### OPENAI ORGANIZATION
+  if (!is.null(openai_organization) && (!is.character(openai_organization))) {
+    cli::cli_abort(c("{.var openai_organization} must be a length one character vector."), call = call)
+  }
+
+  ### PROGRESS
+  if (!is.logical(progress) || length(progress) != 1 || is.na(progress)) {
+    cli::cli_abort(c("{.var progress} must either be {.var TRUE} or {.var FALSE}."), call = call)
+  }
+
+  ### MODEL
+  if (any(is.null(model)) || !is.character(model) || any(is.na(model))) {
+    cli::cli_abort(c("{.var model} must be a non-NA character vector."), call = call)
+  }
+
+  ### TEMPERATURE
+  if(!is.null(temperature)) {
+    if (!is.numeric(temperature) || any(temperature < 0) || any(temperature > 2)) {
+      cli::cli_abort(c("{.var temperature} must be a vector of numbers between {.code 0} and {.code 2}.", x = "You supplied {.var {temperature}}."), call = call)
+    }
+  }
+
+  ### TOP P
+  if (!is.null(top_p)) {
+    if (!is.numeric(top_p) || any(top_p < 0) || any(top_p > 1)) {
+      cli::cli_abort(c("{.var top_p} must be a vector of numbers between {.code 0} and {.code 1}.", x = "You supplied {.var {top_p}}."), call = call)
+    }
+  }
+
+  ### TEMPERATURE & TOP P
+  if (!is.null(temperature) && !is.null(top_p)) {
+      cli::cli_alert_warning(c("It is not recommended to specify both {.var temperature} and {.var top_p} at the same time. Some models may refuse to generate if both values are supplied."))
+  }
+
+  ### MAX TOKENS
+  if (!is.null(max_tokens)) {
+    if (!is.numeric(max_tokens) || any(is.na(max_tokens)) || any(max_tokens %% 1 != 0)) {
+      cli::cli_abort(c("{.var max_tokens} must be a integer vector of values between {.code 0} and {.code 4096}.", x = "You supplied a length {length(max_tokens)} {.cls {typeof(max_tokens)}} vector."), call = call)
+    }
+    if (any(max_tokens <= 0) || any(max_tokens > 4096)) {
+      cli::cli_abort(c("{.var max_tokens} must be an integer between {.code 0} and {.code 4096}.", x = "You supplied {.var {max_tokens}}."), call = call)
+    }
+  }
+
+  ### PRESENCE PENALTY
+  if(!is.null(presence_penalty)) {
+    if (!is.numeric(presence_penalty) || any(is.na(presence_penalty))) {
+      cli::cli_abort(c("{.var presence_penalty} must be a number between {.code -2} and {.code 2}.", x = "You supplied a length {length(presence_penalty)} {.cls {typeof(presence_penalty)}} vector."), call = call)
+    }
+    if (any(presence_penalty < -2) || any(presence_penalty > 2)) {
+      cli::cli_abort(c("{.var presence_penalty} must be a number between {.code -2} and {.code 2}.", x = "You supplied {.var {presence_penalty}}."), call = call)
+    }
+  }
+
+  ### FREQUENCY PENALTY
+  if(!is.null(frequency_penalty)) {
+    if (!is.numeric(frequency_penalty) || any(is.na(frequency_penalty))) {
+      cli::cli_abort(c("{.var frequency_penalty} must be a number between {.code -2} and {.code 2}.", x = "You supplied a length {length(frequency_penalty)} {.cls {typeof(frequency_penalty)}}."), call = call)
+    }
+    if (any(frequency_penalty < -2) || any(frequency_penalty > 2)) {
+      cli::cli_abort(c("{.var frequency_penalty} must be a number between {.code -2} and {.code 2}.", x = "You supplied {.var {frequency_penalty}}."), call = call)
+    }
+  }
+
+  ### REPAIR
   if(!is.logical(repair) || length(repair) != 1 || is.na(repair)) {
     cli::cli_abort(c("{.var repair} must either be {.code TRUE} or {.code FALSE}."), call = call)
   }
@@ -60,7 +141,7 @@ gpt.data.frame <- function(source,
     }
   }
 
-  ### Iterations
+  ### ITERATIONS
   if (is.null(iterations) || !is.numeric(iterations) || length(iterations) != 1 || is.na(iterations) || iterations <= 0 || iterations %% 1 != 0) {
     cli::cli_abort(c("{.code iterations} must be a positive integer."), call = call)
   }
@@ -73,6 +154,7 @@ gpt.data.frame <- function(source,
   parentInfo$http_error <- 0
   parentInfo$firstLineError <- 0L
   parentInfo$df <- TRUE
+  parentInfo$baseCall <- evalq(match.call(expand.dots = FALSE), parent.frame(1))
   parentInfo$call <- match.call.defaults()
 
 
@@ -104,7 +186,7 @@ gpt.data.frame <- function(source,
   vector_vars <- length_list == max_len
   invalid_vars <- var_list[!length_list %in% c(0, 1, max_len)]
   iterate_vars <- var_list[vector_vars]
-  invalid_vars
+
   if (length(invalid_vars) > 0) {
     cli::cli_abort(c(
       "Some variables have invalid lengths.",
@@ -117,15 +199,6 @@ gpt.data.frame <- function(source,
   for (var_name in var_list) {
     assign(var_name, vctrs::vec_recycle(get(var_name), max_len))
   }
-
-  ### Repair mode
-  if (repair == TRUE) {
-    na_index <- c()
-    for (out in output) {
-      na_index[1] <- which(is.na(source[[out]]))
-    }
-  }
-
 
   ### Main Loop ----------------------------------
   if(repair == TRUE) {
@@ -141,9 +214,11 @@ gpt.data.frame <- function(source,
         if (iter > 1) {
           outputcol <- paste0(outputcol, "_", iter)
         }
-        na_output <- which(is.na(source[[outputcol]]))
-        na_input <- source[[input]][na_output]
-        source[[outputcol]][na_output] <- gpt(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo)
+        na_index <- apply(source[, outputcol], 1, function(row) {
+          any(is.na(row) | row == "" | row == " " | row == "NA")
+        })
+        na_input <- source[[input]][na_index]
+        source[[outputcol]][na_index] <- gpt(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo)
       }
     }
   } else {
@@ -167,12 +242,29 @@ gpt.data.frame <- function(source,
     }
   }
 
-
-
   ### Clean up dataframe -----------------------------
   source <- source |>
     dplyr::ungroup()
 
+  ### Warnings and Messages ---------------------------
+  if(parentInfo$firstLineError > 0) {
+    cli::cli_alert_warning("First Error Located in Row: {parentInfo$firstLineError}")
+    cli::cli_bullets(c(i = "This is could be a rate limit error. Check the website of the model provider for specific rate limits for your usage tier. Rerun this function again with {.code repair=TRUE} to continue processing once you are no longer rate-limited."))
+  }
+
+  if(parentInfo$http_error > 0) {
+    cli::cli_alert_warning("There are {parentInfo$http_error} {?error/errors} from OpenAI servers.")
+  }
+
+  if(parentInfo$NACount > 0) {
+    cli::cli_alert_warning("There are {parentInfo$NACount} missing {? value/values} in the input column.")
+    cli::cli_bullets(c(i = "{parentInfo$NACount} {? NA/NAs} introduced in the output."))
+  }
+
+  if(parentInfo$EmptyCount > 0) {
+    cli::cli_alert_warning("There are {parentInfo$EmptyCount} empty {? string/strings} in the input column.")
+    cli::cli_bullets(c(i = "{parentInfo$EmptyCount} empty {? string/strings} introduced in the output."))
+  }
   ### Return Object --------------------------
   return(source)
 }
