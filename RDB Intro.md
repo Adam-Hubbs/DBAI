@@ -12,22 +12,17 @@ execute:
 
 DBAI is a package for using Large Language Models with R datasets. You can use it to call AI models straight from R without any other knowledge of API's or Python. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
 
-DBAI was created with the following principles in mind:
-- Transparency
-- Simplicity
+DBAI was created with the following principles in mind: - Transparency - Simplicity
 
-Every call to DBAI includes invisible meta-data information that you can access. With the proliferation of Artificial Intelligence tools the specific parameters being fed to the models are becoming super important. 
+Every call to DBAI includes invisible meta-data information that you can access. With the proliferation of Artificial Intelligence tools the specific parameters being fed to the models are becoming super important.
 
-DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we reccomend you use packages like TensorFlow in Python. 
+DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we reccomend you use packages like TensorFlow in Python.
 
-DBAI supports the following model providers:
-- Open AI
-- Anthropic
-- Google
+DBAI supports the following model providers: - Open AI - Anthropic - Google
 
-These models can all be accessed with the premier function`llm_generate`.
+These models can all be accessed with the function `llm_generate`, or you can access functions specific to each model provider.
 
-All of these models can be called using the same function with the same syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website. For more details about obtaining an API Key and the Costs associated, see *API Keys*.
+All of these models can be called using the same function with the same syntax. The main difference is each of these three companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website. For more details about obtaining an API Key and the Costs associated, see *API Keys*.
 
 -   <https://platform.openai.com/playground>
 
@@ -108,14 +103,12 @@ Here we call out function `gpt()` and tell it the source of our data is "sample_
 
 Go ahead and run this and examine the results.
 
-By default, the DBAI family of models returns an list of class 'llm_completion'. The first item in the list is the returned Data frame with the new column of results. It then returns the prompt, the model, the model provider, the date it was ran on, and a final object containing miscellaneous meta-data that is specific to each provider. llm_completion objects provide a way to track various meta-data.
-
-We can also omit this information and just return the dataframe directly without any additional information. To do this set `return_invisible = TRUE`.
+DBAI functions return the text of the completion with meta-data invisibly attached. To view the meta-data attached with a return vector, call `summary()` on the output.
 
 ```{r}
-result_df <- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = TRUE)
+result_df <- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo")
 
-print(result_df)
+summary(result_df$Vote)
 ```
 
 `DBAI` functions are vectorized and can take multiple prompts at the same time and return multiple results. Let's extend our first example.

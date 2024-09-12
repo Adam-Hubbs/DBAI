@@ -1,10 +1,9 @@
 #' gemini
 #' @export
-gemini <- function(
+gemini.character <- function(
     source,
-    input,
     output = "output",
-    prompt,
+    prompt = "",
     model = "gemini-1.5-flash",
     iterations = 1,
     repair = FALSE,
@@ -16,7 +15,7 @@ gemini <- function(
     google_api_key = Sys.getenv("GOOGLE_API_KEY"),
     call = rlang::caller_env(),
     parentInfo = NULL) {
-  
+
   ### Initialize Dummy Environment for Pass by reference system --
   if(is.null(parentInfo)) {
     parentInfo <- new.env()
@@ -29,6 +28,7 @@ gemini <- function(
   parentInfo$EmptyCount <- 0L
   parentInfo$http_error <- 0L
   parentInfo$firstLineError <- 0L
+  parentInfo$safteyRestriction <- 0L
 
 ### Validate Statements ----------------------------------
 
@@ -58,10 +58,6 @@ if (parentInfo$df != TRUE) {
   }
 
   ### Other Function Parameters
-  if (!is.null(google_organization) && (!is.character(google_organization) || length(google_organization) != 1)) {
-    cli::cli_abort(c("{.var google_organization} must be a length one character vector."), call = call)
-  }
-
   ### Progress
   if (!is.logical(progress) || length(progress) != 1 || is.na(progress)) {
     cli::cli_abort(c("{.var progress} must either be {.var TRUE} or {.var FALSE}."), call = call)
@@ -94,7 +90,7 @@ if (parentInfo$df != TRUE) {
   ### TOP K
   if (!is.null(top_k)) {
     if (!is.numeric(top_k) || any(top_k < 0)) {
-      cli::cli_abort(c("{.var top_k} must be a vector of numbers greater than {.code 0}.", x = "You supplied {.var {top_k}}."), call = call)
+      cli::cli_abort(c("{.var top_k} must be a length 1 numeric vector greater than {.code 0}.", x = "You supplied {.var {top_k}}."), call = call)
     }
   }
 
@@ -173,13 +169,17 @@ if (progress == TRUE && parentInfo$df == FALSE) {
       httr::content(as = "text", encoding = "UTF-8") |>
       jsonlite::fromJSON(flatten = TRUE)
 
+
+
+
     if (httr::http_error(response)) {
       parentInfo$http_error <- parentInfo$http_error + 1
       cli::cli_abort(c("Google API request failed[{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
     }
     if (parsed$candidates$finishReason != "STOP") {
       parentInfo$safteyRestriction <- parentInfo$safteyRestriction + 1
-      cli::cli_alert_warning(c("Gemini API refused to return completion for reason {parsed$candidates$finishReason}"), call = call)
+      cli::cli_alert_warning(c("Gemini API refused to return completion for reason {parsed$candidates$finishReason}"))
+      parsed$candidates$`content.parts`[[1]]$text <- NA
     }
     parsed
   }
@@ -198,7 +198,7 @@ if (progress == TRUE && parentInfo$df == FALSE) {
       } else {
         working_vec[i] <- tryCatch({completion(input[i], prompt)$candidates$`content.parts`[[1]]$text}, error = function(e) {
           #Suppress_line_messages = TRUE if this function is called from gpt.data.frame using repair mode and the indecies are wrong.
-          if (suppress_line_messages == FALSE) {
+          if (parentInfo$df == FALSE) {
             if(parentInfo$firstLineError == 0) {
               parentInfo$firstLineError <- i
             }
@@ -257,7 +257,7 @@ if (progress == TRUE && parentInfo$df == FALSE) {
   if (prompt == "") {
     prompt <- source
   }
-  output_vector <- new_llm_completion(output_vector, Call = Call, Prompt = prompt, Model = model, Model_Provider = "OpenAI", Date = Sys.Date(), Temperature = temperature, Raw = a)
+  output_vector <- new_llm_completion(output_vector, Call = Call, Prompt = prompt, Model = model, Model_Provider = "Google", Date = Sys.Date(), Temperature = temperature, Raw = a)
 
   return(output_vector)
 }

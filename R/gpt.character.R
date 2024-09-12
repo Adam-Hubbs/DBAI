@@ -23,7 +23,7 @@ gpt.character <- function(source,
   if(is.null(parentInfo)) {
     parentInfo <- new.env()
     parentInfo$df <- FALSE
-    Call <- match.call.defaults()
+    Call <- DBAI:::match.call.defaults()
   } else {
     Call <- parentInfo$call
   }
@@ -212,7 +212,7 @@ gpt.character <- function(source,
       } else {
         working_vec[i] <- tryCatch({completion(input[i], prompt)$choices$message.content}, error = function(e) {
           #Suppress_line_messages = TRUE if this function is called from gpt.data.frame using repair mode and the indecies are wrong.
-          if (suppress_line_messages == FALSE) {
+          if (parentInfo$df == FALSE) {
             if(parentInfo$firstLineError == 0) {
               parentInfo$firstLineError <- i
             }

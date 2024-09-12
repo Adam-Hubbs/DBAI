@@ -22,7 +22,7 @@
 #' @param google_api_key optional; defaults to `Sys.getenv("GOOGLE_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies Google API key. Must obtain API Key from Google.
 #' @return A dataframe with the output column(s) created
 #' @export
-llm_generate <- function(
+llm_generate.data.frame <- function(
     source,
     input,
     output = "output",

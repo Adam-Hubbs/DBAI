@@ -22,7 +22,7 @@
 #' @param google_api_key optional; defaults to `Sys.getenv("GOOGLE_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies Google API key. Must obtain API Key from Google.
 #' @return A dataframe with the output column(s) created
 #' @export
-llm_generate <- function(
+llm_generate.character <- function(
   source,
   input,
   output = "output",
@@ -47,7 +47,7 @@ llm_generate <- function(
   google_api_key = Sys.getenv("GOOGLE_API_KEY")) {
 
   # Handle Automatic model_provider
-  if (!is_valid_model_provider(model_provider)) {
+  if (!DBAI:::is_valid_model_provider(model_provider)) {
     lookup_table <- c(
       "gpt-3.5-turbo-16k" = "OpenAI",
       "gpt-3.5-turbo-instruct" = "OpenAI",
@@ -93,7 +93,7 @@ llm_generate <- function(
   } else if (model_provider == "Google") {
     rtn <- gemini.character()
   } else if (model_provider == "Anthropic") {
-    rtn <- claude.character()
+    rtn <- DBAI:::claude.character()
   } else {
     cli::cli_abort(c(
       "Unable to find model provider.",
