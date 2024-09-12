@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">DBAI</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9015</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9020</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,8 @@
 <p>Every call to DBAI includes invisible meta-data information that you can access. With the proliferation of Artificial Intelligence tools the specific parameters being fed to the models are becoming super important.</p>
 <p>DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we reccomend you use packages like TensorFlow in Python.</p>
 <p>DBAI supports the following model providers: - Open AI - Anthropic - Google</p>
-<p>These models can all be accessed with the premier function<code>llm_generate</code>.</p>
-<p>All of these models can be called using the same function with the same syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider’s website. For more details about obtaining an API Key and the Costs associated, see <em>API Keys</em>.</p>
+<p>These models can all be accessed with the function <code>llm_generate</code>, or you can access functions specific to each model provider.</p>
+<p>All of these models can be called using the same function with the same syntax. The main difference is each of these three companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider’s website. For more details about obtaining an API Key and the Costs associated, see <em>API Keys</em>.</p>
 <ul><li><p><a href="https://platform.openai.com/playground" class="external-link uri">https://platform.openai.com/playground</a></p></li>
 <li><p><a href="https://www.anthropic.com/api" class="external-link uri">https://www.anthropic.com/api</a></p></li>
 <li><p><a href="https://ai.google.dev/gemini-api" class="external-link uri">https://ai.google.dev/gemini-api</a></p></li>
@@ -94,14 +94,12 @@ Here we call out function `gpt()` and tell it the source of our data is "sample_
 
 Go ahead and run this and examine the results.
 
-By default, the DBAI family of models returns an list of class 'llm_completion'. The first item in the list is the returned Data frame with the new column of results. It then returns the prompt, the model, the model provider, the date it was ran on, and a final object containing miscellaneous meta-data that is specific to each provider. llm_completion objects provide a way to track various meta-data.
-
-We can also omit this information and just return the dataframe directly without any additional information. To do this set `return_invisible = TRUE`.
+DBAI functions return the text of the completion with meta-data invisibly attached. To view the meta-data attached with a return vector, call `summary()` on the output.
 
 ```{r}
-result_df &lt;- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = TRUE)
+result_df &lt;- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo")
 
-print(result_df)</code></pre>
+summary(result_df$Vote)</code></pre>
 <p><code>DBAI</code> functions are vectorized and can take multiple prompts at the same time and return multiple results. Let’s extend our first example.</p>
 <p>```{r} sample_df &lt;- data.frame( year = c(1964, 1998, 1979, 1981), gender = c(“Male”, “Female”, “Male”, “Female”), occupation = c(“Farmer”, “Investment Banker”, “Lawyer”, “Social Worker”), location = c(“Kansas”, “New York”, “Phoenix”, “Baltimore”), race = c(“White”, “White”, “Hispanic”, “Black”), religion = c(“Evangelical Protestant”, “Catholic”, “Catholic”, “Muslim”), demo = c( “60 year old white man from Kansas. Is an evangelical protestant and a farmer.”, “26 year old white female investment banker from New York. Is a Catholic.”, “45 year old male lawyer from Phoenix. Is a hispanic catholic.”, “43 year old black female. Works as a social worker in Baltimore and is a practicing muslim.”))</p>
 <p>prompt &lt;- “I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say ‘Trump’ or ‘Biden’ only. Do not say anything else.”</p>
