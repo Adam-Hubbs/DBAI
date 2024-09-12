@@ -257,7 +257,7 @@ if (progress == TRUE && parentInfo$df == FALSE) {
   if (prompt == "") {
     prompt <- source
   }
-  output_vector <- new_llm_completion(output_vector, Call = Call, Prompt = prompt, Model = model, Model_Provider = "Google", Date = Sys.Date(), Temperature = temperature, Raw = a)
+  output_vector <- DBAI:::new_llm_completion(output_vector, Call = Call, Prompt = prompt, Model = model, Model_Provider = "Google", Date = Sys.Date(), Temperature = temperature, Raw = a)
 
   return(output_vector)
 }

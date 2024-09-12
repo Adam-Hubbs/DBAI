@@ -11,7 +11,7 @@
 #' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `1` (More creative).
 #' @param top_p optional; a length one numeric vector with the value between `0` and `1`. Only specify a temperature or a top_p, never both. Not recommended, for most use cases use temperature instead.
 #' @param top_k optional; a length one numeric vector with the integer value greater than `0`. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.
-#' @param anthropic_version optional; defaults to `2023-06-01`; a length one character vector. Specifies the version of the Anthropic's models.
+#' @param anthropic_version required; defaults to `2023-06-01`; a length one character vector. Specifies the version of the Anthropic's models.
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a length one numeric vector with the integer value greater than `0`.
 #' @param anthropic_api_key required; defaults to `Sys.getenv("ANTHROPIC_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies Anthropic API key.
 #' @return A dataframe with the output column(s) created
