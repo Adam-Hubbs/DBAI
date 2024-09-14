@@ -28,10 +28,10 @@ claude.character <- function(source,
                    top_k = NULL,
                    anthropic_version = "2023-06-01",
                    max_tokens = 4096,
+                   parentInfo = NULL,
+                   call = rlang::caller_env(),
                    anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY")) {
 
-
-  
     ### Initialize Dummy Environment for Pass by reference system --
     if(is.null(parentInfo)) {
       parentInfo <- new.env()
@@ -44,8 +44,8 @@ claude.character <- function(source,
     parentInfo$EmptyCount <- 0L
     parentInfo$http_error <- 0L
     parentInfo$firstLineError <- 0L
-  
-  
+
+
   ### Validate Statements ---------------------------------
   if (parentInfo$df != TRUE) {
     ### API KEY
@@ -116,7 +116,7 @@ claude.character <- function(source,
         cli::cli_abort(c("{.var top_k} must be a length 1 numeric vector greater than {.code 0}.", x = "You supplied {.var {top_k}}."), call = call)
       }
     }
-    
+
     ###
     ### TOP_K and Temperature Warning but allow it
     ###
@@ -137,7 +137,7 @@ claude.character <- function(source,
   if(length(source) < 3) {
     progress <- FALSE
   }
-  
+
   ### Initialize Progress Bar -----------------------------
   if (progress == TRUE && parentInfo$df == FALSE) {
    parentInfo$pb <- progress::progress_bar$new(
@@ -190,7 +190,11 @@ claude.character <- function(source,
 
     if (httr::http_error(response)) {
       parentInfo$http_error <- parentInfo$http_error + 1
-      cli::cli_abort(c("Anthropic API request failed [{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
+      if(httr::status_code(response) == 404) {
+        cli::cli_abort(c("Anthropic API request failed [404]."), footer = {parsed$error$message}, call = call, class = "404")
+      } else {
+        cli::cli_abort(c("Anthropic API request failed [{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
+      }
     }
     parsed
   }
@@ -209,12 +213,13 @@ claude.character <- function(source,
         working_vec[i] <- ""
       } else {
         working_vec[i] <- tryCatch({completion(input[i], prompt)$content$text}, error = function(e) {
-          #Suppress_line_messages = TRUE if this function is called from gpt.data.frame using repair mode and the indecies are wrong.
           if (parentInfo$df == FALSE) {
             if(parentInfo$firstLineError == 0) {
               parentInfo$firstLineError <- i
             }
-            cli::cli_alert_warning(c("Error: Returning NA in row {i}", i = "Message: {e$message}"))
+          }
+          if ("404" %in% class(e)) {
+            cli::cli_abort(c("{e$message}", x = {e$footer}), call = call)
           }
           return(NA)
         })

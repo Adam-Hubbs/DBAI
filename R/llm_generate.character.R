@@ -45,7 +45,8 @@ llm_generate.character <- function(
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL,
   anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
-  google_api_key = Sys.getenv("GOOGLE_API_KEY")) {
+  google_api_key = Sys.getenv("GOOGLE_API_KEY"),
+  parentInfo = NULL) {
 
   # Handle Automatic model_provider
   if (!DBAI:::is_valid_model_provider(model_provider)) {

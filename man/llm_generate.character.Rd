@@ -54,7 +54,7 @@
 
 \item{top_k}{optional; a numeric vector with the integer value greater than \code{0}. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.}
 
-\item{anthropic_version}{optional; defaults to \code{2023-06-01}; a character vector. Specifies the version of the Anthropic's models.}
+\item{anthropic_version}{required; defaults to \code{2023-06-01}; a length one character vector. Specifies the version of the Anthropic's models.}
 
 \item{n}{optional; defaults to \code{1}; a numeric vector with the integer value greater than \code{0}.}
 

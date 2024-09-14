@@ -30,6 +30,7 @@ claude.data.frame <- function(source,
                    top_k = NULL,
                    anthropic_version = "2023-06-01",
                    max_tokens = 4096,
+                   call = rlang::caller_env(),
                    anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY")) {
 
 
@@ -168,7 +169,7 @@ claude.data.frame <- function(source,
   ### Vectorization Mapping -----------------------------
   #Double check that this is all the vars. Also think about how/if we want to implement input, and output.
 
-  var_list <- c("output", "prompt", "model", "temperature", "top_p", "n", "presence_penalty", "frequency_penalty", "max_tokens")
+  var_list <- c("output", "prompt", "model", "temperature", "top_p", "top_k", "anthropic_version", "max_tokens")
 
 
   length_list <- sapply(mget(var_list), length)
@@ -190,6 +191,7 @@ claude.data.frame <- function(source,
     assign(var_name, vctrs::vec_recycle(get(var_name), max_len))
   }
 
+
   ### Main Loop ----------------------------------
   if(repair == TRUE) {
     for (iter in 1:iterations) {
@@ -208,7 +210,7 @@ claude.data.frame <- function(source,
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- claude(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], max_tokens = max_tokens[h], anthropic_version = anthropic_version, parentInfo = parentInfo)
+        source[[outputcol]][na_index] <- claude(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], max_tokens = max_tokens[h], anthropic_version = anthropic_version[h], parentInfo = parentInfo)
       }
     }
   } else {
@@ -227,7 +229,7 @@ claude.data.frame <- function(source,
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := claude(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], max_tokens = max_tokens[h], anthropic_version = anthropic_version, parentInfo = parentInfo))
+          dplyr::mutate(!!outputcol := claude(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], max_tokens = max_tokens[h], anthropic_version = anthropic_version[h], parentInfo = parentInfo))
       }
     }
   }

@@ -191,8 +191,12 @@ gpt.character <- function(source,
       jsonlite::fromJSON(flatten = TRUE)
 
     if (httr::http_error(response)) {
-    parentInfo$http_error <- parentInfo$http_error + 1
-    cli::cli_abort(c("OpenAI API request failed[{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
+      parentInfo$http_error <- parentInfo$http_error + 1
+      if(httr::status_code(response) == 404) {
+        cli::cli_abort(c("OpenAI API request failed [404]."), footer = {parsed$error$message}, call = call, class = "404")
+      } else {
+        cli::cli_abort(c("OpenAI API request failed [{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
+      }
     }
     parsed
   }
@@ -211,12 +215,13 @@ gpt.character <- function(source,
         working_vec[i] <- ""
       } else {
         working_vec[i] <- tryCatch({completion(input[i], prompt)$choices$message.content}, error = function(e) {
-          #Suppress_line_messages = TRUE if this function is called from gpt.data.frame using repair mode and the indecies are wrong.
           if (parentInfo$df == FALSE) {
             if(parentInfo$firstLineError == 0) {
               parentInfo$firstLineError <- i
             }
-            cli::cli_alert_warning(c("Error: Returning NA in row {i}", i = "Message: {e$message}"))
+          }
+          if ("404" %in% class(e)) {
+            cli::cli_abort(c("{e$message}", x = {e$footer}), call = call)
           }
           return(NA)
         })

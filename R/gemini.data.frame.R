@@ -162,7 +162,7 @@ gemini.data.frame <- function(
   ### Vectorization Mapping -----------------------------
   #Double check that this is all the vars. Also think about how/if we want to implement input, and output.
 
-  var_list <- c("output", "prompt", "model", "temperature", "top_p", "n", "presence_penalty", "frequency_penalty", "max_tokens")
+  var_list <- c("output", "prompt", "model", "temperature", "top_p", "top_k", "max_tokens")
 
 
   length_list <- sapply(mget(var_list), length)
