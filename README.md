@@ -10,27 +10,19 @@ execute:
 
 # DBAI
 
-DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API's. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
+DBAI is a package for using Large Language Models with R datasets. You can use it to call AI models straight from R without any other knowledge of API's or Python. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
 
-DBAI supports the following companies and models
+DBAI was created with these two key principles in mind: *Transparency* and *Simplicity*
 
--   Open AI via `gpt()`
+Every call to DBAI includes invisible meta-data information that you can access.
 
-    -   Popular models include gpt-3.5, gpt-4, and gpt-4o
+DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we recommend you use packages like TensorFlow in Python.
 
-    -   Access the models behind ChatGPT
+DBAI supports the following model providers: - Open AI - Anthropic - Google
 
--   Anthropic via `claude()`
+These models can all be accessed with the function `llm_generate`, or you can access functions specific to each model provider.
 
-    -   All versions of claude3
-
--   Google via `gemini()`
-
-    -   Gemini 1.5 family of models
-
-In addition, all of these models can be accessed with the prefered alias function `llm_generate()`.
-
-All of these models can be called using similar syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website.
+All of these models can be called using the same function with the same syntax. The main difference is each of these three companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider's website. For more details about obtaining an API Key and the Costs associated, see *API Keys*.
 
 -   <https://platform.openai.com/playground>
 

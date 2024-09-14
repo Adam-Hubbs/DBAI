@@ -12,11 +12,11 @@ execute:
 
 DBAI is a package for using Large Language Models with R datasets. You can use it to call AI models straight from R without any other knowledge of API's or Python. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
 
-DBAI was created with the following principles in mind: - Transparency - Simplicity
+DBAI was created with these two key principles in mind: *Transparency* and *Simplicity*
 
-Every call to DBAI includes invisible meta-data information that you can access. With the proliferation of Artificial Intelligence tools the specific parameters being fed to the models are becoming super important.
+Every call to DBAI includes invisible meta-data information that you can access.
 
-DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we reccomend you use packages like TensorFlow in Python.
+DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we recommend you use packages like TensorFlow in Python.
 
 DBAI supports the following model providers: - Open AI - Anthropic - Google
 

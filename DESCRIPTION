@@ -1,9 +1,9 @@
 Package: DBAI
 Title: AI Tools for R Datasets
-Version: 0.0.0.9020
+Version: 0.0.0.9025
 Authors@R: 
     person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
-Description: R Wrapper for AI API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.
+Description: R Wrapper for LLM API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
