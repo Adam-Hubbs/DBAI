@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="AI Tools for R Datasets">
-<meta name="description" content="R Wrapper for AI APIs. This package is designed to make it easier to access and use AI APIs in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.">
-<meta property="og:description" content="R Wrapper for AI APIs. This package is designed to make it easier to access and use AI APIs in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.">
+<meta name="description" content="R Wrapper for LLM APIs. This package is designed to make it easier to access and use AI APIs in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.">
+<meta property="og:description" content="R Wrapper for LLM APIs. This package is designed to make it easier to access and use AI APIs in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">DBAI</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9020</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9025</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,31 +49,13 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="dbai">DBAI<a class="anchor" aria-label="anchor" href="#dbai"></a>
 </h1></div>
-<p>DBAI is a package for using AI tools with R datasets. You can use it to call AI models straight from R without any other knowledge of API’s. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.</p>
-<p>DBAI supports the following companies and models</p>
-<ul>
-<li>
-<p>Open AI via <code><a href="reference/gpt.html">gpt()</a></code></p>
-<ul>
-<li><p>Popular models include gpt-3.5, gpt-4, and gpt-4o</p></li>
-<li><p>Access the models behind ChatGPT</p></li>
-</ul>
-</li>
-<li>
-<p>Anthropic via <code><a href="reference/claude.html">claude()</a></code></p>
-<ul>
-<li>All versions of claude3</li>
-</ul>
-</li>
-<li>
-<p>Google via <code><a href="reference/gemini.html">gemini()</a></code></p>
-<ul>
-<li>Gemini 1.5 family of models</li>
-</ul>
-</li>
-</ul>
-<p>In addition, all of these models can be accessed with the prefered alias function <code><a href="reference/llm_generate.html">llm_generate()</a></code>.</p>
-<p>All of these models can be called using similar syntax. The main difference is each of these four companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider’s website.</p>
+<p>DBAI is a package for using Large Language Models with R datasets. You can use it to call AI models straight from R without any other knowledge of API’s or Python. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.</p>
+<p>DBAI was created with these two key principles in mind: <em>Transparency</em> and <em>Simplicity</em></p>
+<p>Every call to DBAI includes invisible meta-data information that you can access.</p>
+<p>DBAI was made for social scientists, not AI/CS researchers. It uses an intuitive interface to return text generation from data. It was made to abstract technical details. For advanced AI research, we recommend you use packages like TensorFlow in Python.</p>
+<p>DBAI supports the following model providers: - Open AI - Anthropic - Google</p>
+<p>These models can all be accessed with the function <code>llm_generate</code>, or you can access functions specific to each model provider.</p>
+<p>All of these models can be called using the same function with the same syntax. The main difference is each of these three companies require their own API Key. An API Key is similar to an ID or Credit Card number for these companies. They use it to authenticate that it is really you making this request, and to track your usage to bill you. API Keys are obtained from the model provider’s website. For more details about obtaining an API Key and the Costs associated, see <em>API Keys</em>.</p>
 <ul>
 <li><p><a href="https://platform.openai.com/playground" class="external-link uri">https://platform.openai.com/playground</a></p></li>
 <li><p><a href="https://www.anthropic.com/api" class="external-link uri">https://www.anthropic.com/api</a></p></li>
