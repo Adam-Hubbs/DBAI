@@ -75,6 +75,10 @@ if (parentInfo$df != TRUE) {
     }
   }
 
+  ### Check for Saftey Parameters
+  saftey_sexually_explicit = c("none", "low", "medium", "high")
+
+
   ### TOP P
   if (!is.null(top_p)) {
     if (!is.numeric(top_p) || length(top_p) != 1 || top_p < 0 || top_p > 1) {

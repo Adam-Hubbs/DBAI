@@ -25,13 +25,9 @@
 #' @export
 llm_generate.character <- function(
   source,
-  input,
-  output = "output",
-  prompt,
+  prompt = "",
   model = "gpt-3.5-turbo",
   model_provider = NA,
-  return_invisible = FALSE,
-  iterations = 1,
   repair = FALSE,
   progress = TRUE,
   temperature = 1,
@@ -48,6 +44,9 @@ llm_generate.character <- function(
   google_api_key = Sys.getenv("GOOGLE_API_KEY"),
   parentInfo = NULL) {
 
+  if (is.na(model)) {
+    cli::cli_abort(c("Model not specified.", i = "Please provide a model to use."))
+  }
   # Handle Automatic model_provider
   if (!DBAI:::is_valid_model_provider(model_provider)) {
     lookup_table <- c(
@@ -77,6 +76,7 @@ llm_generate.character <- function(
       "gemini-1.5-flash" = "Google",
       "gemini-1.0-pro" = "Google"
     )
+
     providers <- lookup_table[model]
     if (length(providers) != length(model)) {
       cli::cli_abort(c(
@@ -85,17 +85,18 @@ llm_generate.character <- function(
         x = "The following model{?s} could not be automatically matched to a model provider: {.val missings}"
       ))
     } else {
-      model_providers <- providers
+      model_provider <- providers
     }
   }
 
+
   #Dispatch to model_provider functions
   if (model_provider == "OpenAI") {
-    rtn <- gpt.character()
+    rtn <- gpt.character(source = source, prompt = prompt, model = model, progress = progress, temperature = temperature, top_p = top_p, max_tokens = max_tokens, frequency_penalty = frequency_penalty, presence_penalty = presence_penalty, openai_api_key = openai_api_key, openai_organization = openai_organization, parentInfo = parentInfo)
   } else if (model_provider == "Google") {
-    rtn <- gemini.character()
+    rtn <- gemini.character(source = source, prompt = prompt, model = model, progress = progress, temperature = temperature, top_p = top_p, top_k = top_k, max_tokens = max_tokens, google_api_key = google_api_key, parentInfo = parentInfo)
   } else if (model_provider == "Anthropic") {
-    rtn <- DBAI:::claude.character()
+    rtn <- DBAI:::claude.character(source = source, prompt = prompt, model = model, progress = progress, temperature = temperature, top_p = top_p, top_k = top_k, max_tokens = max_tokens, anthropic_api_key = anthropic_api_key, anthropic_version = anthropic_version, parentInfo = parentInfo)
   } else {
     cli::cli_abort(c(
       "Unable to find model provider.",
