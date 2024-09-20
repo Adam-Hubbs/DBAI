@@ -1,5 +1,8 @@
 # DBAI (development version)
 
+## Dev Version .9030
+### LLM_Generate now stable
+* Fixed the last bugs with llm_generate. It now properly also works for data.frames
 
 ## Dev Version .9020
 ### S3 Refactor

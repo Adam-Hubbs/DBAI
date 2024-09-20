@@ -89,6 +89,18 @@ llm_generate.character <- function(
     }
   }
 
+  ### Initialize Dummy Environment for Pass by reference system --
+  if(is.null(parentInfo)) {
+    parentInfo <- new.env()
+    parentInfo$df <- FALSE
+    parentInfo$call <- match.call.defaults()
+  }
+
+  parentInfo$NACount <- 0L
+  parentInfo$EmptyCount <- 0L
+  parentInfo$http_error <- 0L
+  parentInfo$firstLineError <- 0L
+  parentInfo$safteyRestriction <- 0L
 
   #Dispatch to model_provider functions
   if (model_provider == "OpenAI") {

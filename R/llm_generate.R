@@ -32,7 +32,7 @@ llm_generate <- function(source,
                 repair = FALSE,
                 progress = TRUE,
                 temperature = 1,
-                top_p = 1,
+                top_p = NULL,
                 top_k = NULL,
                 anthropic_version = "2023-06-01",
                 n = 1,
@@ -42,7 +42,8 @@ llm_generate <- function(source,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
-                google_api_key = Sys.getenv("GOOGLE_API_KEY"))
+                google_api_key = Sys.getenv("GOOGLE_API_KEY"),
+                parentInfo = NULL)
 {
   UseMethod("llm_generate")
 }

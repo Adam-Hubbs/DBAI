@@ -32,7 +32,6 @@ gpt.character <- function(source,
   parentInfo$http_error <- 0L
   parentInfo$firstLineError <- 0L
 
-
   ### Validate Statements ----------------------------------
 
   if (parentInfo$df != TRUE) {

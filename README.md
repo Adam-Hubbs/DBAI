@@ -8,6 +8,8 @@ execute:
   error: false
 ---
 
+DBAI is currently undergoing development. Some of the features may be changed before full stable release.
+
 # DBAI
 
 DBAI is a package for using Large Language Models with R datasets. You can use it to call AI models straight from R without any other knowledge of API's or Python. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.

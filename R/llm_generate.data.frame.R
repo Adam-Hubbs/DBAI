@@ -26,7 +26,7 @@ llm_generate.data.frame <- function(
     source,
     input,
     output = "output",
-    prompt,
+    prompt = "",
     model = "gpt-3.5-turbo",
     model_provider = NA,
     return_invisible = FALSE,
@@ -44,7 +44,8 @@ llm_generate.data.frame <- function(
     openai_api_key = Sys.getenv("OPENAI_API_KEY"),
     openai_organization = NULL,
     anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
-    google_api_key = Sys.getenv("GOOGLE_API_KEY")) {
+    google_api_key = Sys.getenv("GOOGLE_API_KEY"),
+    parentInfo = NULL) {
 
   ### Validate Statements ----------------------------------
 
@@ -85,12 +86,12 @@ llm_generate.data.frame <- function(
         x = "The following model{?s} could not be automatically matched to a model provider: {.val missings}"
       ))
     } else {
-      model_providers <- providers
+      model_provider <- providers
     }
   }
 
   # Handle vectorization mapping and explicit vector recycling here rather than in the child functions
-  var_list <- c("output", "prompt", "model", "model_provider", "temperature", "top_p", "n", "presence_penalty", "frequency_penalty", "max_tokens")
+  var_list <- c("output", "prompt", "model", "model_provider", "temperature", "top_p", "top_k", "n", "presence_penalty", "frequency_penalty", "max_tokens")
 
 
   length_list <- sapply(mget(var_list), length)
@@ -123,6 +124,20 @@ llm_generate.data.frame <- function(
   parentInfo$call <- match.call.defaults()
   parentInfo$llm_generate <- TRUE
 
+  ### Initialize Progress Bar -----------------------------
+  if(repair == TRUE && progress == TRUE) {
+    message("Progress bars are not supported in Repair mode")
+    progress <- FALSE
+  }
+
+  if (progress == TRUE) {
+    parentInfo$pb <- progress::progress_bar$new(
+      total = nrow(source) * length(prompt) * iterations,
+      format = "[:bar] :current/:total | :percent | :eta remaining"
+    )
+  }
+
+
   ### Add all variables into these calls, not just OpenAI ones.
   ### Main Loop ----------------------------------
   if(repair == TRUE) {
@@ -142,7 +157,7 @@ llm_generate.data.frame <- function(
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo)
+        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider[h])
       }
     }
   } else {
@@ -161,7 +176,7 @@ llm_generate.data.frame <- function(
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo))
+          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider[h]))
       }
     }
   }
