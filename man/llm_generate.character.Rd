@@ -12,7 +12,7 @@
   repair = FALSE,
   progress = TRUE,
   temperature = 1,
-  top_p = 1,
+  top_p = NULL,
   top_k = NULL,
   anthropic_version = "2023-06-01",
   presence_penalty = 0,
@@ -44,7 +44,7 @@
 
 \item{temperature}{optional; defaults to \code{1}; a length one numeric vector with the value between \code{0} (More analytical) and \code{2} (More creative). \code{0-2} for OpenAI and Google models, \code{0-1} for Anthropic models.}
 
-\item{top_p}{optional; defaults to \code{1}; a numeric vector with the value between \code{0} and \code{1}.}
+\item{top_p}{optional; defaults to \code{NULL}; a numeric vector with the value between \code{0} and \code{1}.}
 
 \item{top_k}{optional; a numeric vector with the integer value greater than \code{0}. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.}
 
