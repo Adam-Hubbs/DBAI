@@ -19,6 +19,7 @@
   top_k = NULL,
   anthropic_version = "2023-06-01",
   max_tokens = 4096,
+  call = rlang::caller_env(),
   anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY")
 )
 }

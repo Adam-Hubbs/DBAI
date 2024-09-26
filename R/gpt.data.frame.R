@@ -9,13 +9,18 @@
 #' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console. Not available when using repair mode.
 #' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `2` (More creative).
 #' @param top_p optional; defaults to `1`; a length one numeric vector with the value between `0` and `1`.
-#' @param n optional; defaults to `1`; a length one numeric vector with the integer value greater than `0`.
 #' @param presence_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
 #' @param frequency_penalty optional; defaults to `0`; a length one numeric vector with a value between `-2` and `2`.
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a length one numeric vector with the integer value greater than `0`.
 #' @param openai_api_key required; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.
 #' @param openai_organization optional; defaults to `NULL`; a length one character vector. Specifies OpenAI organization.
 #' @param parentInfo Used internally. Do not supply.
+#' @param logit_bias optional; defaults to `NULL`; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.
+#' @param logprobs optional; defaults to `FALSE`. If `TRUE`, the API will return log probabilities for each token.
+#' @param top_logprobs optional; An integer between `0` and `20`. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top `top_logprobs` tokens at each position. The `logprobs` must be set to `TRUE` to use this parameter.
+#' @param seed optional; defaults to `NULL`. An integer that allows for reproducible results when using the same seed. (BETA)
+#' @param stop optional; Defaults to `NULL`. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.
+#' @param user optional; defaults to `NULL`. A string that specifies the user ID to associate with the completion.
 #' @return A dataframe with the output column(s) created
 #' @export
 gpt.data.frame <- function(source,
@@ -28,14 +33,25 @@ gpt.data.frame <- function(source,
                 progress = TRUE,
                 temperature = NULL,
                 top_p = NULL,
-                n = NULL,
                 presence_penalty = NULL,
                 frequency_penalty = NULL,
                 max_tokens = 4096,
+                logit_bias = NULL,
+                logprobs = FALSE,
+                top_logprobs = NULL,
+                seed = NULL,
+                stop = NULL,
+                user = NULL,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 call = rlang::caller_env(),
                 parentInfo = NULL) {
+
+  # TODO
+  # Deprecate `n` in favor of `iterations`
+  # Note about max_tokens and how it is now max_completion_tokens
+
+
 
   ### Validate Statements ----------------------------------
   ### API KEY
@@ -178,7 +194,7 @@ gpt.data.frame <- function(source,
   ### Vectorization Mapping -----------------------------
   #Double check that this is all the vars. Also think about how/if we want to implement input, and output.
 
-  var_list <- c("output", "prompt", "model", "temperature", "top_p", "n", "presence_penalty", "frequency_penalty", "max_tokens")
+  var_list <- c("output", "prompt", "model", "temperature", "top_p", "presence_penalty", "frequency_penalty", "max_tokens")
 
 
   length_list <- sapply(mget(var_list), length)
@@ -218,7 +234,7 @@ gpt.data.frame <- function(source,
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- gpt(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo)
+        source[[outputcol]][na_index] <- gpt(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo)
       }
     }
   } else {
@@ -237,7 +253,7 @@ gpt.data.frame <- function(source,
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := gpt(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], n = n[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo))
+          dplyr::mutate(!!outputcol := gpt(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo))
       }
     }
   }

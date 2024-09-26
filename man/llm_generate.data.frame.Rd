@@ -8,10 +8,9 @@
   source,
   input,
   output = "output",
-  prompt,
+  prompt = "",
   model = "gpt-3.5-turbo",
   model_provider = NA,
-  return_invisible = FALSE,
   iterations = 1,
   repair = FALSE,
   progress = TRUE,
@@ -19,14 +18,20 @@
   top_p = 1,
   top_k = NULL,
   anthropic_version = "2023-06-01",
-  n = 1,
   presence_penalty = 0,
   frequency_penalty = 0,
   max_tokens = 4096,
+  logit_bias = NULL,
+  logprobs = FALSE,
+  top_logprobs = NULL,
+  seed = NULL,
+  stop = NULL,
+  user = NULL,
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL,
   anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
-  google_api_key = Sys.getenv("GOOGLE_API_KEY")
+  google_api_key = Sys.getenv("GOOGLE_API_KEY"),
+  parentInfo = NULL
 )
 }
 \arguments{
@@ -39,8 +44,6 @@
 \item{prompt}{required; A string (Or vector of Strings for handling multiple operations at the same time) of prompts to be sent to the AI model.}
 
 \item{model}{required; a character vector.}
-
-\item{return_invisible}{optional; A boolean to return just the output (\code{TRUE}) or an llm-completion object containing model metadata (\code{FALSE}). Defaults to \code{FALSE}.}
 
 \item{iterations}{optional; An integer. Number of completions to generate for each prompt Defaults to \code{1}.}
 
@@ -56,13 +59,23 @@
 
 \item{anthropic_version}{optional; defaults to \code{2023-06-01}; a character vector. Specifies the version of the Anthropic's models.}
 
-\item{n}{optional; defaults to \code{1}; a numeric vector with the integer value greater than \code{0}.}
-
 \item{presence_penalty}{optional; defaults to \code{0}; a numeric vector with a value between \code{-2} and \code{2}.}
 
 \item{frequency_penalty}{optional; defaults to \code{0}; a numeric vector with a value between \code{-2} and \code{2}.}
 
 \item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a numeric vector with the integer value greater than \code{0}.}
+
+\item{logit_bias}{optional; defaults to \code{NULL}; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.}
+
+\item{logprobs}{optional; defaults to \code{FALSE}. If \code{TRUE}, the API will return log probabilities for each token.}
+
+\item{top_logprobs}{optional; An integer between \code{0} and \code{20}. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top \code{top_logprobs} tokens at each position. The \code{logprobs} must be set to \code{TRUE} to use this parameter.}
+
+\item{seed}{optional; defaults to \code{NULL}. An integer that allows for reproducible results when using the same seed. (BETA)}
+
+\item{stop}{optional; Defaults to \code{NULL}. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.}
+
+\item{user}{optional; defaults to \code{NULL}. A string that specifies the user ID to associate with the completion.}
 
 \item{openai_api_key}{optional; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.}
 

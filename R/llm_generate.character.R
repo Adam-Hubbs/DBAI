@@ -9,13 +9,18 @@
 #' @param repair optional; A boolean to repair NA's in the output column and keep values already present in the output column if the output column has already been created. False overrides the data already in an output column if it exists. Useful to continue a computation if you have been rate limited. Defaults to `FALSE`.
 #' @param progress optional; a length one logical vector. Defaults to `TRUE`. Determines whether to show a progress bar in the console. Not available when using repair mode.
 #' @param temperature optional; defaults to `1`; a length one numeric vector with the value between `0` (More analytical) and `2` (More creative). `0-2` for OpenAI and Google models, `0-1` for Anthropic models.
-#' @param top_p optional; defaults to `1`; a numeric vector with the value between `0` and `1`.
+#' @param top_p optional; defaults to `NULL`; a numeric vector with the value between `0` and `1`.
 #' @param top_k optional; a numeric vector with the integer value greater than `0`. Only sample from the top_k options for each subsequent token. Not recommended, for most use cases use temperature instead.
 #' @param anthropic_version optional; defaults to `2023-06-01`; a character vector. Specifies the version of the Anthropic's models.
-#' @param n optional; defaults to `1`; a numeric vector with the integer value greater than `0`.
 #' @param presence_penalty optional; defaults to `0`; a numeric vector with a value between `-2` and `2`.
 #' @param frequency_penalty optional; defaults to `0`; a numeric vector with a value between `-2` and `2`.
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a numeric vector with the integer value greater than `0`.
+#' @param logit_bias optional; defaults to `NULL`; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.
+#' @param logprobs optional; defaults to `FALSE`. If `TRUE`, the API will return log probabilities for each token.
+#' @param top_logprobs optional; An integer between `0` and `20`. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top `top_logprobs` tokens at each position. The `logprobs` must be set to `TRUE` to use this parameter.
+#' @param seed optional; defaults to `NULL`. An integer that allows for reproducible results when using the same seed. (BETA)
+#' @param stop optional; Defaults to `NULL`. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.
+#' @param user optional; defaults to `NULL`. A string that specifies the user ID to associate with the completion.
 #' @param openai_api_key optional; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.
 #' @param openai_organization optional; defaults to `NULL`; a length one character vector. Specifies OpenAI organization.
 #' @param anthropic_version required; defaults to `2023-06-01`; a length one character vector. Specifies the version of the Anthropic's models.
@@ -31,13 +36,18 @@ llm_generate.character <- function(
   repair = FALSE,
   progress = TRUE,
   temperature = 1,
-  top_p = 1,
+  top_p = NULL,
   top_k = NULL,
   anthropic_version = "2023-06-01",
-  n = 1,
   presence_penalty = 0,
   frequency_penalty = 0,
   max_tokens = 4096,
+  logit_bias = NULL,
+  logprobs = FALSE,
+  top_logprobs = NULL,
+  seed = NULL,
+  stop = NULL,
+  user = NULL,
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL,
   anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),

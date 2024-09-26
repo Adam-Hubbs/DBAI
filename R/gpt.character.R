@@ -8,10 +8,15 @@ gpt.character <- function(source,
                 model = "gpt-3.5-turbo",
                 temperature = NULL,
                 top_p = NULL,
-                n = NULL,
                 presence_penalty = NULL,
                 frequency_penalty = NULL,
                 max_tokens = 4096,
+                logit_bias = NULL,
+                logprobs = FALSE,
+                top_logprobs = NULL,
+                seed = NULL,
+                stop = NULL,
+                user = NULL,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 call = rlang::caller_env(),
@@ -158,7 +163,6 @@ gpt.character <- function(source,
   body[["model"]] <- model
   body[["temperature"]] <- temperature
   body[["top_p"]] <- top_p
-  body[["n"]] <- n
   body[["max_tokens"]] <- max_tokens
   body[["presence_penalty"]] <- presence_penalty
   body[["frequency_penalty"]] <- frequency_penalty

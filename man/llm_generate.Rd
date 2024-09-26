@@ -15,7 +15,7 @@ llm_generate(
   repair = FALSE,
   progress = TRUE,
   temperature = 1,
-  top_p = 1,
+  top_p = NULL,
   top_k = NULL,
   anthropic_version = "2023-06-01",
   n = 1,
@@ -25,7 +25,8 @@ llm_generate(
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL,
   anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
-  google_api_key = Sys.getenv("GOOGLE_API_KEY")
+  google_api_key = Sys.getenv("GOOGLE_API_KEY"),
+  parentInfo = NULL
 )
 }
 \arguments{
@@ -70,6 +71,18 @@ llm_generate(
 \item{anthropic_api_key}{optional; defaults to \code{Sys.getenv("ANTHROPIC_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies Anthropic API key.}
 
 \item{google_api_key}{optional; defaults to \code{Sys.getenv("GOOGLE_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies Google API key. Must obtain API Key from Google.}
+
+\item{logit_bias}{optional; defaults to \code{NULL}; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.}
+
+\item{logprobs}{optional; defaults to \code{FALSE}. If \code{TRUE}, the API will return log probabilities for each token.}
+
+\item{top_logprobs}{optional; An integer between \code{0} and \code{20}. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top \code{top_logprobs} tokens at each position. The \code{logprobs} must be set to \code{TRUE} to use this parameter.}
+
+\item{seed}{optional; defaults to \code{NULL}. An integer that allows for reproducible results when using the same seed. (BETA)}
+
+\item{stop}{optional; Defaults to \code{NULL}. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.}
+
+\item{user}{optional; defaults to \code{NULL}. A string that specifies the user ID to associate with the completion.}
 }
 \value{
 A dataframe with the output column(s) created
