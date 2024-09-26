@@ -162,6 +162,47 @@ gpt.data.frame <- function(source,
     cli::cli_abort(c("{.code iterations} must be a positive integer."), call = call)
   }
 
+  ### Logbrobs and top_logprobs
+  if (!is.null(logprobs)) {
+    if (!is.logical(logprobs) || length(logprobs) != 1 || is.na(logprobs)) {
+      cli::cli_abort(c("{.var logprobs}, if supplied, must either be {.code TRUE} or {.code FALSE}."), call = call)
+    }
+    if (logprobs == TRUE) {
+      if (!is.null(top_logprobs)) {
+        if (!is.numeric(top_logprobs) || length(top_logprobs) != 1 || is.na(top_logprobs) || top_logprobs < 0 || top_logprobs > 20) {
+          cli::cli_abort(c("{.var top_logprobs}, if supplied, must be a number between {.code 0} and {.code 20}.", x = "You supplied {.var {top_logprobs}}."), call = call)
+        }
+      }
+    }
+  } else {
+    if (!is.null(top_logprobs)) {
+      cli::cli_abort(c("{.var top_logprobs} cannot be supplied without {.var logprobs} being {.code TRUE}.", call = call))
+    }
+  }
+
+
+    ### Seed
+    if (!is.null(seed)) {
+      if (!is.numeric(seed) || length(seed) != 1 || is.na(seed) || seed < 0) {
+        cli::cli_abort(c("{.var seed}, if supplied, must be a number greater than {.code 0}.", x = "You supplied {.var {seed}}."), call = call)
+      }
+    }
+
+    ### Stop
+    if (!is.null(stop)) {
+      if (!is.character(stop) || length(stop) > 4 || is.na(stop)) {
+        cli::cli_abort(c("{.var stop}, if supplied, must be a length 1 to 4 character vector."), call = call)
+      }
+    }
+
+    ### User
+    if (!is.null(user)) {
+      if (!is.character(user) || length(user) != 1 || is.na(user)) {
+        cli::cli_abort(c("{.var user}, if supplied, must be a length one character vector."), call = call)
+      }
+    }
+
+
 
   ### Initialize Dummy Environment for Pass by reference system --
   parentInfo <- new.env()
