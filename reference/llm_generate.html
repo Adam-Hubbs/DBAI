@@ -50,7 +50,7 @@
 <span>  repair <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  temperature <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  top_p <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  top_p <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  top_k <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  anthropic_version <span class="op">=</span> <span class="st">"2023-06-01"</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -60,7 +60,8 @@
 <span>  openai_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPENAI_API_KEY"</span><span class="op">)</span>,</span>
 <span>  openai_organization <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  anthropic_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ANTHROPIC_API_KEY"</span><span class="op">)</span>,</span>
-<span>  google_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GOOGLE_API_KEY"</span><span class="op">)</span></span>
+<span>  google_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GOOGLE_API_KEY"</span><span class="op">)</span>,</span>
+<span>  parentInfo <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -150,6 +151,30 @@
 
 <dt id="arg-google-api-key">google_api_key<a class="anchor" aria-label="anchor" href="#arg-google-api-key"></a></dt>
 <dd><p>optional; defaults to <code>Sys.getenv("GOOGLE_API_KEY")</code> (i.e., the value is retrieved from the <code>.Renviron</code> file); a length one character vector. Specifies Google API key. Must obtain API Key from Google.</p></dd>
+
+
+<dt id="arg-logit-bias">logit_bias<a class="anchor" aria-label="anchor" href="#arg-logit-bias"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.</p></dd>
+
+
+<dt id="arg-logprobs">logprobs<a class="anchor" aria-label="anchor" href="#arg-logprobs"></a></dt>
+<dd><p>optional; defaults to <code>FALSE</code>. If <code>TRUE</code>, the API will return log probabilities for each token.</p></dd>
+
+
+<dt id="arg-top-logprobs">top_logprobs<a class="anchor" aria-label="anchor" href="#arg-top-logprobs"></a></dt>
+<dd><p>optional; An integer between <code>0</code> and <code>20</code>. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top <code>top_logprobs</code> tokens at each position. The <code>logprobs</code> must be set to <code>TRUE</code> to use this parameter.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. An integer that allows for reproducible results when using the same seed. (BETA)</p></dd>
+
+
+<dt id="arg-stop">stop<a class="anchor" aria-label="anchor" href="#arg-stop"></a></dt>
+<dd><p>optional; Defaults to <code>NULL</code>. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.</p></dd>
+
+
+<dt id="arg-user">user<a class="anchor" aria-label="anchor" href="#arg-user"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. A string that specifies the user ID to associate with the completion.</p></dd>
 
 </dl></div>
     <div class="section level2">

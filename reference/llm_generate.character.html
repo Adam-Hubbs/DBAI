@@ -42,27 +42,29 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'character'</span></span>
 <span><span class="fu"><a href="llm_generate.html">llm_generate</a></span><span class="op">(</span></span>
 <span>  <span class="va">source</span>,</span>
-<span>  <span class="va">input</span>,</span>
-<span>  output <span class="op">=</span> <span class="st">"output"</span>,</span>
-<span>  <span class="va">prompt</span>,</span>
+<span>  prompt <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>,</span>
 <span>  model_provider <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  return_invisible <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  iterations <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  repair <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  temperature <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  top_p <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  top_p <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  top_k <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  anthropic_version <span class="op">=</span> <span class="st">"2023-06-01"</span>,</span>
-<span>  n <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  presence_penalty <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  frequency_penalty <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_tokens <span class="op">=</span> <span class="fl">4096</span>,</span>
+<span>  logit_bias <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logprobs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  top_logprobs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stop <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  user <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  openai_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPENAI_API_KEY"</span><span class="op">)</span>,</span>
 <span>  openai_organization <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  anthropic_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ANTHROPIC_API_KEY"</span><span class="op">)</span>,</span>
-<span>  google_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GOOGLE_API_KEY"</span><span class="op">)</span></span>
+<span>  google_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"GOOGLE_API_KEY"</span><span class="op">)</span>,</span>
+<span>  parentInfo <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,28 +76,12 @@
 <dd><p>required; A source dataframe or llm-completion object.</p></dd>
 
 
-<dt id="arg-input">input<a class="anchor" aria-label="anchor" href="#arg-input"></a></dt>
-<dd><p>required; A column name in the source dataframe</p></dd>
-
-
-<dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
-<dd><p>optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to <code>output</code>.</p></dd>
-
-
 <dt id="arg-prompt">prompt<a class="anchor" aria-label="anchor" href="#arg-prompt"></a></dt>
 <dd><p>required; A string (Or vector of Strings for handling multiple operations at the same time) of prompts to be sent to the AI model.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>required; a character vector.</p></dd>
-
-
-<dt id="arg-return-invisible">return_invisible<a class="anchor" aria-label="anchor" href="#arg-return-invisible"></a></dt>
-<dd><p>optional; A boolean to return just the output (<code>TRUE</code>) or an llm-completion object containing model metadata (<code>FALSE</code>). Defaults to <code>FALSE</code>.</p></dd>
-
-
-<dt id="arg-iterations">iterations<a class="anchor" aria-label="anchor" href="#arg-iterations"></a></dt>
-<dd><p>optional; An integer. Number of completions to generate for each prompt Defaults to <code>1</code>.</p></dd>
 
 
 <dt id="arg-repair">repair<a class="anchor" aria-label="anchor" href="#arg-repair"></a></dt>
@@ -111,7 +97,7 @@
 
 
 <dt id="arg-top-p">top_p<a class="anchor" aria-label="anchor" href="#arg-top-p"></a></dt>
-<dd><p>optional; defaults to <code>1</code>; a numeric vector with the value between <code>0</code> and <code>1</code>.</p></dd>
+<dd><p>optional; defaults to <code>NULL</code>; a numeric vector with the value between <code>0</code> and <code>1</code>.</p></dd>
 
 
 <dt id="arg-top-k">top_k<a class="anchor" aria-label="anchor" href="#arg-top-k"></a></dt>
@@ -120,10 +106,6 @@
 
 <dt id="arg-anthropic-version">anthropic_version<a class="anchor" aria-label="anchor" href="#arg-anthropic-version"></a></dt>
 <dd><p>required; defaults to <code>2023-06-01</code>; a length one character vector. Specifies the version of the Anthropic's models.</p></dd>
-
-
-<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>optional; defaults to <code>1</code>; a numeric vector with the integer value greater than <code>0</code>.</p></dd>
 
 
 <dt id="arg-presence-penalty">presence_penalty<a class="anchor" aria-label="anchor" href="#arg-presence-penalty"></a></dt>
@@ -136,6 +118,30 @@
 
 <dt id="arg-max-tokens">max_tokens<a class="anchor" aria-label="anchor" href="#arg-max-tokens"></a></dt>
 <dd><p>optional; defaults to <code>(4096 - prompt tokens)</code>; a numeric vector with the integer value greater than <code>0</code>.</p></dd>
+
+
+<dt id="arg-logit-bias">logit_bias<a class="anchor" aria-label="anchor" href="#arg-logit-bias"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.</p></dd>
+
+
+<dt id="arg-logprobs">logprobs<a class="anchor" aria-label="anchor" href="#arg-logprobs"></a></dt>
+<dd><p>optional; defaults to <code>FALSE</code>. If <code>TRUE</code>, the API will return log probabilities for each token.</p></dd>
+
+
+<dt id="arg-top-logprobs">top_logprobs<a class="anchor" aria-label="anchor" href="#arg-top-logprobs"></a></dt>
+<dd><p>optional; An integer between <code>0</code> and <code>20</code>. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top <code>top_logprobs</code> tokens at each position. The <code>logprobs</code> must be set to <code>TRUE</code> to use this parameter.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. An integer that allows for reproducible results when using the same seed. (BETA)</p></dd>
+
+
+<dt id="arg-stop">stop<a class="anchor" aria-label="anchor" href="#arg-stop"></a></dt>
+<dd><p>optional; Defaults to <code>NULL</code>. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.</p></dd>
+
+
+<dt id="arg-user">user<a class="anchor" aria-label="anchor" href="#arg-user"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. A string that specifies the user ID to associate with the completion.</p></dd>
 
 
 <dt id="arg-openai-api-key">openai_api_key<a class="anchor" aria-label="anchor" href="#arg-openai-api-key"></a></dt>
@@ -152,6 +158,22 @@
 
 <dt id="arg-google-api-key">google_api_key<a class="anchor" aria-label="anchor" href="#arg-google-api-key"></a></dt>
 <dd><p>optional; defaults to <code>Sys.getenv("GOOGLE_API_KEY")</code> (i.e., the value is retrieved from the <code>.Renviron</code> file); a length one character vector. Specifies Google API key. Must obtain API Key from Google.</p></dd>
+
+
+<dt id="arg-input">input<a class="anchor" aria-label="anchor" href="#arg-input"></a></dt>
+<dd><p>required; A column name in the source dataframe</p></dd>
+
+
+<dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
+<dd><p>optional; A string of a column name (Or a vector of strings) to be created in the source dataframe storing the output of the models. Defaults to <code>output</code>.</p></dd>
+
+
+<dt id="arg-return-invisible">return_invisible<a class="anchor" aria-label="anchor" href="#arg-return-invisible"></a></dt>
+<dd><p>optional; A boolean to return just the output (<code>TRUE</code>) or an llm-completion object containing model metadata (<code>FALSE</code>). Defaults to <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-iterations">iterations<a class="anchor" aria-label="anchor" href="#arg-iterations"></a></dt>
+<dd><p>optional; An integer. Number of completions to generate for each prompt Defaults to <code>1</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

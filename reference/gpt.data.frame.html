@@ -51,10 +51,15 @@
 <span>  progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  temperature <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  top_p <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  presence_penalty <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  frequency_penalty <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_tokens <span class="op">=</span> <span class="fl">4096</span>,</span>
+<span>  logit_bias <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logprobs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  top_logprobs <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stop <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  user <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  openai_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPENAI_API_KEY"</span><span class="op">)</span>,</span>
 <span>  openai_organization <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -106,10 +111,6 @@
 <dd><p>optional; defaults to <code>1</code>; a length one numeric vector with the value between <code>0</code> and <code>1</code>.</p></dd>
 
 
-<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>optional; defaults to <code>1</code>; a length one numeric vector with the integer value greater than <code>0</code>.</p></dd>
-
-
 <dt id="arg-presence-penalty">presence_penalty<a class="anchor" aria-label="anchor" href="#arg-presence-penalty"></a></dt>
 <dd><p>optional; defaults to <code>0</code>; a length one numeric vector with a value between <code>-2</code> and <code>2</code>.</p></dd>
 
@@ -120,6 +121,30 @@
 
 <dt id="arg-max-tokens">max_tokens<a class="anchor" aria-label="anchor" href="#arg-max-tokens"></a></dt>
 <dd><p>optional; defaults to <code>(4096 - prompt tokens)</code>; a length one numeric vector with the integer value greater than <code>0</code>.</p></dd>
+
+
+<dt id="arg-logit-bias">logit_bias<a class="anchor" aria-label="anchor" href="#arg-logit-bias"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.</p></dd>
+
+
+<dt id="arg-logprobs">logprobs<a class="anchor" aria-label="anchor" href="#arg-logprobs"></a></dt>
+<dd><p>optional; defaults to <code>FALSE</code>. If <code>TRUE</code>, the API will return log probabilities for each token.</p></dd>
+
+
+<dt id="arg-top-logprobs">top_logprobs<a class="anchor" aria-label="anchor" href="#arg-top-logprobs"></a></dt>
+<dd><p>optional; An integer between <code>0</code> and <code>20</code>. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top <code>top_logprobs</code> tokens at each position. The <code>logprobs</code> must be set to <code>TRUE</code> to use this parameter.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. An integer that allows for reproducible results when using the same seed. (BETA)</p></dd>
+
+
+<dt id="arg-stop">stop<a class="anchor" aria-label="anchor" href="#arg-stop"></a></dt>
+<dd><p>optional; Defaults to <code>NULL</code>. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.</p></dd>
+
+
+<dt id="arg-user">user<a class="anchor" aria-label="anchor" href="#arg-user"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. A string that specifies the user ID to associate with the completion.</p></dd>
 
 
 <dt id="arg-openai-api-key">openai_api_key<a class="anchor" aria-label="anchor" href="#arg-openai-api-key"></a></dt>
