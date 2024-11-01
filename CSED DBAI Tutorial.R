@@ -115,10 +115,49 @@ summary(vote_choice2)
 ##########################################
 
 # We can also use data frames (And tibbles). With data frames, you can run more than one prompt at the same time.
+survey_data <- data.frame(id = c(1, 2, 1),
+                       message = c("Guns are great",
+                                   "i think guns are bad",
+                                   "They protect my family and keep the king of england out of my face"))
+
+
+
+
+
+
+gun_prompt <- "I will give you a statement. I want you to tell me if the overall sentiment is 'Pro-gun' or 'Anti-gun'. Say 'Pro-gun' or 'Anti-gun' only."
+
+
+
+
+
+
+survey_data <- llm_generate(survey_data, input = "message", output = "GunStance", prompt = gun_prompt, model = "gpt-3.5-turbo", max_tokens = 5)
+
+
+
+
+
+
+View(survey_data)
+
+
+
+
+
+
+
+
+# Let's try another example, this time with returning more than one column.
 df <- data.frame(
   year = c(60, 26, 45, 43),
   demographics = demographics_vector
 )
+
+
+
+
+View(df)
 
 
 
@@ -147,6 +186,10 @@ outputVec <- c("Vote", "Party")
 
 df <- llm_generate(df, input = "demographics", prompt = prompts, max_tokens = 10, output = outputVec)
 
+
+
+
+View(df)
 
 
 
