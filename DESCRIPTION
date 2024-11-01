@@ -1,6 +1,6 @@
 Package: DBAI
 Title: AI Tools for R Datasets
-Version: 0.0.0.9030
+Version: 0.0.0.9040
 Authors@R: 
     person("Adam", "Hubbs", , "amhubbs17@gmail.com", role = c("aut", "cre"))
 Description: R Wrapper for LLM API's. This package is designed to make it easier to access and use AI API's in R. This package is designed to be used with the OpenAI API, Gemini API, and Claude API.
@@ -11,7 +11,7 @@ RoxygenNote: 7.3.1
 URL: https://github.com/Adam-Hubbs/DBAI, https://adam-hubbs.github.io/DBAI/
 BugReports: https://github.com/Adam-Hubbs/DBAI/issues
 Depends: 
-    R (>= 4.4.0)
+    R (>= 4.1.0)
 Imports: 
     dplyr (>= 1.0.0),
     rlang (>= 1.1.0),

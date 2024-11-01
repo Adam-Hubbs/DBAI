@@ -24,6 +24,7 @@ constitution <- llm_generate("Tell me about the Constitution of the United State
 
 
 # Let's set the API Key. This is a TEST Key and will NOT WORK AFTER TODAY!!!!! You will need to obtain your own API Key from the website of the model provider you wish to use (OpenAI, Anthropic, or Google).
+# API Key Broken
 Sys.setenv(
   OPENAI_API_KEY = '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'
 )
@@ -215,7 +216,7 @@ library(tidyverse)
 
 
 
-prompt1 <- "Respond with another sentance continuing the story."
+prompt1 <- "Respond with another sentence continuing the story."
 
 
 
@@ -248,7 +249,7 @@ View(story_df)
 
 
 story_df <- story_df |>
-  mutate(next_sentance = case_when(
+  mutate(next_sentence = case_when(
     continue_story == TRUE ~ llm_generate(so_far, prompt = prompt1),
     continue_story == FALSE ~ llm_generate(so_far, prompt = prompt2),
     TRUE ~ NA))
@@ -261,5 +262,5 @@ View(story_df)
 
 
 
-summary(story_df$next_sentance)
+summary(story_df$next_sentence)
 # DBAI automatically preserves all meta data and puts it together for you. Here we called the function two different times, but that was collapsed into one column. DBAI takes the meta-data from both times into one place.
