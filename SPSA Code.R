@@ -23,10 +23,9 @@ constitution <- llm_generate("Tell me about the Constitution of the United State
 
 
 
-# Let's set the API Key. This is a TEST Key and will NOT WORK AFTER TODAY!!!!! You will need to obtain your own API Key from the website of the model provider you wish to use (OpenAI, Anthropic, or Google).
-# API Key Broken
+# Let's set the API Key. You will need to provide your own API key. If you do not want to get an API Key today, you can follow along with the presenter.
 Sys.setenv(
-  OPENAI_API_KEY = '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'
+  OPENAI_API_KEY = 'XXXXXXXXXXXXXXXXXX'
 )
 
 
@@ -46,6 +45,9 @@ constitution <- llm_generate("Tell me about the Constitution of the United State
 print(constitution)
 # Responses come to you in a character format.
 
+
+summary(constitution)
+# All Meta-data is invisibly attached. It will never get in the way, but you can always access it easily with summary().
 
 
 
@@ -93,7 +95,7 @@ vote_choice2 <- llm_generate(demographics_vector, prompt = prompt, max_tokens = 
 
 
 
-vote_choice2 <- llm_generate(demographics_vector, prompt = prompt, max_tokens = 5, temperature = 2)
+vote_choice2 <- llm_generate(demographics_vector, prompt = prompt, max_tokens = 5, temperature = 2) #Temperature of 2 means more creative and hallucinative.
 
 
 
@@ -104,7 +106,7 @@ print(vote_choice2)
 
 
 
-# While it looks like DBAI only returns the responses, it actually records all sorts of metadata and stores it invisibly. It will never get in the way, but you can always access it easily with summary().
+
 summary(vote_choice2)
 
 
@@ -133,7 +135,7 @@ gun_prompt <- "I will give you a statement. I want you to tell me if the overall
 
 
 
-survey_data <- llm_generate(survey_data, input = "message", output = "GunStance", prompt = gun_prompt, model = "gpt-3.5-turbo", max_tokens = 5)
+survey_data1 <- llm_generate(survey_data, input = "message", output = "GunStance", prompt = gun_prompt, model = "gpt-3.5-turbo", max_tokens = 5)
 
 
 
@@ -146,7 +148,15 @@ View(survey_data)
 
 
 
+# You can easily compare with different models or model parameters.
+# Lets look at two different models
+survey_data2 <- llm_generate(survey_data, input = "message", output = "GunStance", prompt = gun_prompt, model = c("gpt-3.5-turbo", "gpt-4"), max_tokens = 5)
 
+
+
+
+# Lets change the temperature
+survey_data3 <- llm_generate(survey_data, input = "message", output = c("GunStanceMidTemp", "GunStanceLowTemp"), prompt = gun_prompt, model = "gpt-3.5-turbo", max_tokens = 5, temperature = c(1, 0.1))
 
 
 # Let's try another example, this time with returning more than one column.
@@ -241,8 +251,8 @@ View(education_df)
 
 education_df <- education_df |>
   mutate(persuasion = case_when(
-    stance == "For" ~ llm_generate(demographics, prompt = prompt1),
-    stance == "Against" ~ llm_generate(demographics, prompt = prompt2),
+    stance == "Against" ~ llm_generate(demographics, prompt = prompt1),
+    stance == "For" ~ llm_generate(demographics, prompt = prompt2),
     TRUE ~ NA))
 
 
