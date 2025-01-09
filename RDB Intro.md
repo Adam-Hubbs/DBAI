@@ -8,8 +8,6 @@ execute:
   error: false
 ---
 
-DBAI is currently undergoing development. Some of the features may be changed before full stable release.
-
 ## DBAI
 
 DBAI is a package for using Large Language Models with R datasets. You can use it to call AI models straight from R without any other knowledge of API's or Python. This can be useful for sentiment analysis, imputing missing data, creating synthetic data, making predictions and more.
@@ -85,7 +83,7 @@ sample_df <- data.frame(
   demo = c(
     "60 year old white man from Kansas. Is an evangelical protestant and a farmer.",
     "26 year old white female investment banker from New York. Is a Catholic.",
-    "45 year old male lawyer from Phoenix. Is a hispanic catholic.",
+    "45 year old black male lawyer from Phoenix. Is an atheist.",
     "43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."))
     
   

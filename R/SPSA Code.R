@@ -117,9 +117,9 @@ summary(vote_choice2)
 
 # We can also use data frames (And tibbles). With data frames, you can run more than one prompt at the same time.
 survey_data <- data.frame(id = c(1, 2, 3),
-                       message = c("Guns are great",
-                                   "i think guns are bad",
-                                   "They protect my family and keep the king of england out of my face"))
+                          message = c("Guns are great",
+                                      "i think guns are bad",
+                                      "They protect my family and keep the king of england out of my face"))
 
 
 
@@ -225,10 +225,10 @@ prompt2 <- "I will give you some demographic information about a person. I want 
 
 
 education_df <- tibble(stance = c("For", "Against", "Against", "For"), demographics = c(
-"28 year old white man from Seattle who works as an architect.",
-"67 year old black woman from Atlanta who is retired.",
-"43 year old white woman from New York who works as a banker.",
-"36 year old hispanic man from San Diego who works as a software engineer."
+  "28 year old white man from Seattle who works as an architect.",
+  "67 year old black woman from Atlanta who is retired.",
+  "43 year old white woman from New York who works as a banker.",
+  "36 year old hispanic man from San Diego who works as a software engineer."
 ))
 
 
