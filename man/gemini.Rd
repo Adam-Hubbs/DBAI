@@ -18,7 +18,8 @@ gemini(
   top_p = NULL,
   top_k = NULL,
   max_tokens = 4096,
-  google_api_key = Sys.getenv("GOOGLE_API_KEY")
+  google_api_key = Sys.getenv("GOOGLE_API_KEY"),
+  parentInfo = NULL
 )
 }
 \arguments{

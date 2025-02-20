@@ -10,6 +10,7 @@ llm_generate(
   output = "output",
   prompt,
   model = "gpt-3.5-turbo",
+  model_provider = NA,
   return_invisible = FALSE,
   iterations = 1,
   repair = FALSE,

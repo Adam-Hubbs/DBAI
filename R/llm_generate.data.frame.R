@@ -99,6 +99,11 @@ llm_generate.data.frame <- function(
     }
   }
 
+  # If an argument called model_providers is given, and an argument called model_provider is not given, then pass that to model_provider
+  if (!missing(model_providers) && missing(model_provider)) {
+    model_provider <- model_providers
+  }
+
   # Handle vectorization mapping and explicit vector recycling here rather than in the child functions
   var_list <- c("output", "prompt", "model", "model_provider", "temperature", "top_p", "top_k", "presence_penalty", "frequency_penalty", "max_tokens")
 
