@@ -170,6 +170,51 @@ gpt.character <- function(source,
         cli::cli_abort(c("{.var user}, if supplied, must be a length one character vector."), call = call)
       }
     }
+
+
+    ### Is Reasoning Model
+    if(!is.null(is_reasoning_model)) {
+      if (!is.logical(is_reasoning_model) || length(is_reasoning_model) != 1 || is.na(is_reasoning_model)) {
+        cli::cli_abort(c("{.var is_reasoning_model} must either be {.var TRUE} or {.var FALSE}."), call = call)
+      }
+
+      if ( is_reasoning_model == TRUE) {
+
+
+
+        ### Reasoning Effort
+        if (!is.null(reasoning_effort)) {
+          if (!is.character(reasoning_effort) || length(reasoning_effort) != 1 || is.na(reasoning_effort)) {
+            cli::cli_abort(c("{.var reasoning_effort} must be a length one character vector."), call = call)
+          }
+          if (!reasoning_effort %in% c("low", "medium", "high")) {
+            cli::cli_abort(c("{.var reasoning_effort} must be one of c(`low`, `medium`, `high`).", x = "You supplied {.var {reasoning_effort}}."), call = call)
+          }
+        }
+
+
+
+        ### Max Completion Tokens
+        if (!is.null(max_completion_tokens)) {
+          if (!is.numeric(max_completion_tokens) || length(max_completion_tokens) != 1 || is.na(max_completion_tokens) || max_completion_tokens %% 1 != 0) {
+            cli::cli_abort(c("{.var max_completion_tokens} must be an integer greater than {.code 0}.", x = "You supplied a length {length(max_completion_tokens)} {.cls {typeof(max_completion_tokens)}} vector."), call = call)
+          }
+          if (max_completion_tokens <= 0) {
+            cli::cli_abort(c("{.var max_completion_tokens} must be an integer greater than {.code 0}.", x = "You supplied {.var {max_completion_tokens}}."), call = call)
+          }
+        }
+      } else {
+
+        ### If reasoning specific parameters exist, error
+        if (!is.null(reasoning_effort)) {
+          cli::cli_abort(c("{.var reasoning_effort} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+        }
+
+        if (!is.null(max_completion_tokens)) {
+          cli::cli_abort(c("{.var max_completion_tokens} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+        }
+      }
+    }
   }
 
   ### End Validation ----------------------------------

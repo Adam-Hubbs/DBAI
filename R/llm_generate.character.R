@@ -121,7 +121,7 @@ llm_generate.character <- function(
 
   #Dispatch to model_provider functions
   if (model_provider == "OpenAI") {
-    rtn <- gpt.character(source = source, prompt = prompt, model = model, progress = progress, temperature = temperature, top_p = top_p, max_tokens = max_tokens, frequency_penalty = frequency_penalty, presence_penalty = presence_penalty, openai_api_key = openai_api_key, openai_organization = openai_organization, parentInfo = parentInfo)
+    rtn <- gpt.character(source = source, prompt = prompt, model = model, progress = progress, temperature = temperature, top_p = top_p, max_tokens = max_tokens, frequency_penalty = frequency_penalty, presence_penalty = presence_penalty, openai_api_key = openai_api_key, openai_organization = openai_organization, is_reasoning_model = is_reasoning_model, reasoning_effort = reasoning_effort, max_completion_tokens = max_completion_tokens, parentInfo = parentInfo)
   } else if (model_provider == "Google") {
     rtn <- gemini.character(source = source, prompt = prompt, model = model, progress = progress, temperature = temperature, top_p = top_p, top_k = top_k, max_tokens = max_tokens, google_api_key = google_api_key, parentInfo = parentInfo)
   } else if (model_provider == "Anthropic") {

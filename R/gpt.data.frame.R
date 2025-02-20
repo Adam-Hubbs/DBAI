@@ -209,6 +209,66 @@ gpt.data.frame <- function(source,
     }
 
 
+  ### Is Reasoning Model
+  if(!is.null(is_reasoning_model)) {
+    if (!is.logical(is_reasoning_model) || is.na(is_reasoning_model)) {
+      cli::cli_abort(c("{.var is_reasoning_model} must either be {.var TRUE} or {.var FALSE}."), call = call)
+    }
+
+    if ( is_reasoning_model == TRUE) {
+
+
+
+      ### Reasoning Effort
+      if (!is.null(reasoning_effort)) {
+        if (!is.character(reasoning_effort) || is.na(reasoning_effort)) {
+          cli::cli_abort(c("{.var reasoning_effort} must be a length one character vector."), call = call)
+        }
+
+        # If any of the strings in the reasoning efforts vector are not in the list, error
+        if (!all(reasoning_effort %in% c("low", "medium", "high"))) {
+          cli::cli_abort(c("{.var reasoning_effort} must be one of {.code 'low'}, {.code 'medium'}, or {.code 'high'}.", x = "You supplied {.var {reasoning_effort}}."), call = call)
+        }
+      }
+
+
+
+      ### Max Completion Tokens
+      if (!is.null(max_completion_tokens)) {
+        if (any(!is.numeric(max_completion_tokens) | is.na(max_completion_tokens) | max_completion_tokens %% 1 != 0)) {
+          cli::cli_abort(c("{.var max_completion_tokens} must be an integer greater than {.code 0}.", x = "You supplied a length {length(max_completion_tokens)} {.cls {typeof(max_completion_tokens)}} vector."), call = call)
+        }
+        if (any(max_completion_tokens <= 0)) {
+          cli::cli_abort(c("{.var max_completion_tokens} must be an integer greater than {.code 0}.", x = "You supplied {.var {max_completion_tokens}}."), call = call)
+        }
+      }
+    } else {
+
+      ### If reasoning specific parameters exist, error
+      if (!is.null(reasoning_effort)) {
+        cli::cli_abort(c("{.var reasoning_effort} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+      }
+
+      if (!is.null(max_completion_tokens)) {
+        cli::cli_abort(c("{.var max_completion_tokens} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   ### Initialize Dummy Environment for Pass by reference system --
   parentInfo <- new.env()
@@ -241,7 +301,7 @@ gpt.data.frame <- function(source,
   ### Vectorization Mapping -----------------------------
   #Double check that this is all the vars. Also think about how/if we want to implement input, and output.
 
-  var_list <- c("output", "prompt", "model", "temperature", "top_p", "presence_penalty", "frequency_penalty", "max_tokens")
+  var_list <- c("output", "prompt", "model", "temperature", "top_p", "presence_penalty", "frequency_penalty", "max_tokens", "max_completion_tokens", "is_reasoning_model", "reasoning_effort")
 
 
   length_list <- sapply(mget(var_list), length)
@@ -281,7 +341,7 @@ gpt.data.frame <- function(source,
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- gpt(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo)
+        source[[outputcol]][na_index] <- gpt(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo, is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h])
       }
     }
   } else {
@@ -300,7 +360,7 @@ gpt.data.frame <- function(source,
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := gpt(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo))
+          dplyr::mutate(!!outputcol := gpt(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, parentInfo = parentInfo, is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h]))
       }
     }
   }
