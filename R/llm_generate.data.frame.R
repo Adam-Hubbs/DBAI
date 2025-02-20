@@ -86,12 +86,13 @@ llm_generate.data.frame <- function(
       "gemini-1.0-pro" = "Google"
     )
     providers <- lookup_table[model]
-    if (length(providers) != length(model)) {
-      missings <- model[is.na(providers)]
+    missings <- model[is.na(providers)]
+
+    if (length(missings) >= 1) {
       cli::cli_abort(c(
         "Unable to find model provider.",
         i = "Please provide a model provider for every model you supply. i.e. `OpenAI`, `Google`, or `Anthropic`.",
-        x = "The following model{?s} could not be automatically matched to a model provider: {.val missings}"
+        x = "The following model{?s} could not be automatically matched to a model provider: {.val {missings}}"
       ))
     } else {
       model_provider <- providers
@@ -165,7 +166,7 @@ llm_generate.data.frame <- function(
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider[h])
+        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h])
       }
     }
   } else {
@@ -184,7 +185,7 @@ llm_generate.data.frame <- function(
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider[h]))
+          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h]))
       }
     }
   }

@@ -7,7 +7,8 @@
 ###############################################
 
 # The install.packages() functions only need to be run once. The library() functions need to be run every time you start a new R session.
-install.packages("devtools")
+
+#install.packages("devtools")
 library(devtools)
 install_github("Adam-Hubbs/DBAI")
 library(DBAI)
@@ -118,7 +119,7 @@ summary(vote_choice2)
 ##########################################
 
 # We can also use data frames (And tibbles). With data frames, you can run more than one prompt at the same time.
-survey_data <- data.frame(id = c(1, 2, 3),
+survey_data <- tibble(id = c(1, 2, 3),
                           message = c("Guns are great",
                                       "i think guns are bad",
                                       "They protect my family and keep the king of england out of my face"))
@@ -142,7 +143,7 @@ survey_data1 <- llm_generate(survey_data, input = "message", output = "GunStance
 
 
 
-View(survey_data)
+print(survey_data)
 
 
 
@@ -265,3 +266,8 @@ View(education_df)
 
 summary(education_df$persuasion)
 # DBAI automatically preserves all meta data and puts it together for you. Here we called the function two different times, but that was collapsed into one column. DBAI takes the meta-data from both times into one place.
+
+
+
+
+

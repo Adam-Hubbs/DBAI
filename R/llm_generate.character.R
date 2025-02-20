@@ -88,11 +88,12 @@ llm_generate.character <- function(
     )
 
     providers <- lookup_table[model]
-    if (length(providers) != length(model)) {
+    missings <- model[is.na(providers)]
+    if (length(missings) >= 1) {
       cli::cli_abort(c(
         "Unable to find model provider.",
         i = "Please provide a model provider for every model you supply. i.e. `OpenAI`, `Google`, or `Anthropic`.",
-        x = "The following model{?s} could not be automatically matched to a model provider: {.val missings}"
+        x = "The following model{?s} could not be automatically matched to a model provider: {.val {missings}}"
       ))
     } else {
       model_provider <- providers
@@ -123,12 +124,11 @@ llm_generate.character <- function(
     cli::cli_abort(c(
       "Unable to find model provider.",
       i = "Please provide a model provider for every model you supply. i.e. `OpenAI`, `Google`, or `Anthropic`.",
-      x = "The following model{?s} could not be automatically matched to a model provider: {.val model_provider}"
+      x = "The following model{?s} could not be automatically matched to a model provider: {.val {model_provider}}"
     ))
   }
 return(rtn)
 }
-
 
 
 
