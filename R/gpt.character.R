@@ -19,7 +19,7 @@ gpt.character <- function(source,
                 stop = NULL,
                 user = NULL,
                 is_reasoning_model = NULL,
-                reasoning_effort = 'medium',
+                reasoning_effort = NULL,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 call = rlang::caller_env(),
@@ -170,16 +170,28 @@ gpt.character <- function(source,
         cli::cli_abort(c("{.var user}, if supplied, must be a length one character vector."), call = call)
       }
     }
-
+  }
 
     ### Is Reasoning Model
-    if(!is.null(is_reasoning_model)) {
+    if(is.null(is_reasoning_model)) {
+      if (!is.null(reasoning_effort) || !is.null(max_completion_tokens)) {
+        is_reasoning_model <- TRUE
+        cli::cli_alert_warning(c("Inferred {.var is_reasoning_model} to be {.code TRUE} based on the presence of reasoning parameters."))
+      } else {
+        is_reasoning_model <- FALSE
+      }
+
+    }
+
       if (!is.logical(is_reasoning_model) || length(is_reasoning_model) != 1 || is.na(is_reasoning_model)) {
         cli::cli_abort(c("{.var is_reasoning_model} must either be {.var TRUE} or {.var FALSE}."), call = call)
       }
 
-      if ( is_reasoning_model == TRUE) {
-
+      if (is_reasoning_model == TRUE) {
+        ### If using outdated model parameters, error
+        if (max_tokens != 4096) {
+          cli::cli_alert_warning(c("{.var max_tokens} is being ignored because {.var is_reasoning_model} is {.code TRUE}. Using {.code max_completion_tokens} instead."))
+        }
 
 
         ### Reasoning Effort
@@ -203,19 +215,21 @@ gpt.character <- function(source,
             cli::cli_abort(c("{.var max_completion_tokens} must be an integer greater than {.code 0}.", x = "You supplied {.var {max_completion_tokens}}."), call = call)
           }
         }
-      } else {
+      } else { # is_reasoning_model == FALSE
+
+
+        ### If using reasoning model parameters, error
+        if (!is.null(max_completion_tokens)) {
+          cli::cli_alert_warning(c("{.var max_completion_tokens} is being ignored because {.var is_reasoning_model} is {.code FALSE}. Using {.code max_tokens} instead."))
+        }
+
+
 
         ### If reasoning specific parameters exist, error
         if (!is.null(reasoning_effort)) {
-          cli::cli_abort(c("{.var reasoning_effort} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
-        }
-
-        if (!is.null(max_completion_tokens)) {
-          cli::cli_abort(c("{.var max_completion_tokens} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+          cli::cli_alert_warning(c("{.var reasoning_effort}is being ignored because {.var is_reasoning_model} is {.code FALSE}."))
         }
       }
-    }
-  }
 
   ### End Validation ----------------------------------
 
@@ -251,9 +265,16 @@ gpt.character <- function(source,
   body[["model"]] <- model
   body[["temperature"]] <- temperature
   body[["top_p"]] <- top_p
-  body[["max_tokens"]] <- max_tokens
   body[["presence_penalty"]] <- presence_penalty
   body[["frequency_penalty"]] <- frequency_penalty
+
+  if (is_reasoning_model == TRUE) {
+    body[["reasoning_effort"]] <- reasoning_effort
+    body[["max_completion_tokens"]] <- max_completion_tokens
+  } else {
+    body[["max_tokens"]] <- max_tokens
+  }
+
 
 
 
@@ -286,7 +307,12 @@ gpt.character <- function(source,
       if(httr::status_code(response) == 404) {
         cli::cli_abort(c("OpenAI API request failed [404]."), footer = {parsed$error$message}, call = call, class = "404")
       } else {
-        cli::cli_abort(c("OpenAI API request failed [{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
+        #If the error message contains the string 'Use 'max_completion_tokens' instead' then cli abort with class of 'is_reasoning_model'
+        if (grepl("Use 'max_completion_tokens' instead", parsed$error$message)) {
+          cli::cli_abort(c("OpenAI API request failed [{httr::status_code(response)}]", i = "You are probably attempting to use a reasoning model with parameters meant for non-reasoning models.", i = "Set {.var is_reasoning_model} = {.code TRUE}.", x = "{parsed$error$message}"), call = call, class = "is_reasoning_model")
+        } else {
+          cli::cli_abort(c("OpenAI API request failed [{httr::status_code(response)}]", x = "{parsed$error$message}"), call = call)
+        }
       }
     }
     parsed

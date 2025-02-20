@@ -18,12 +18,15 @@
   presence_penalty = NULL,
   frequency_penalty = NULL,
   max_tokens = 4096,
+  max_completion_tokens = NULL,
   logit_bias = NULL,
   logprobs = FALSE,
   top_logprobs = NULL,
   seed = NULL,
   stop = NULL,
   user = NULL,
+  is_reasoning_model = NULL,
+  reasoning_effort = NULL,
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL,
   call = rlang::caller_env(),
@@ -57,6 +60,8 @@
 
 \item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
 
+\item{max_completion_tokens}{optional; defaults to \code{NULL}; used in OpenAI reasoning models; a numeric vector with the integer value greater than \code{0}. Specifies the maximum number of tokens to generate for each completion. This includes tokens generated as part of the reasoning process and are not returned to the user.}
+
 \item{logit_bias}{optional; defaults to \code{NULL}; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.}
 
 \item{logprobs}{optional; defaults to \code{FALSE}. If \code{TRUE}, the API will return log probabilities for each token.}
@@ -68,6 +73,10 @@
 \item{stop}{optional; Defaults to \code{NULL}. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.}
 
 \item{user}{optional; defaults to \code{NULL}. A string that specifies the user ID to associate with the completion.}
+
+\item{is_reasoning_model}{optional; defaults to \code{NULL}. A vector of booleans that specifies if the model is a reasoning model. If \code{TRUE}, the model will be treated as a reasoning model. Reasoning models use different model parameters and are optimized for reasoning tasks. OpenAI only.}
+
+\item{reasoning_effort}{optional; defauls to \code{medium}. A vector of strings that specifies the effort level for the reasoning model. OpenAI only. Must be one of c(\code{low}, \code{medium}, \code{high}).}
 
 \item{openai_api_key}{required; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.}
 

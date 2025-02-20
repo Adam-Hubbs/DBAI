@@ -47,7 +47,7 @@ gpt.data.frame <- function(source,
                 stop = NULL,
                 user = NULL,
                 is_reasoning_model = NULL,
-                reasoning_effort = 'medium',
+                reasoning_effort = NULL,
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 call = rlang::caller_env(),
@@ -210,12 +210,23 @@ gpt.data.frame <- function(source,
 
 
   ### Is Reasoning Model
-  if(!is.null(is_reasoning_model)) {
+
+  if(is.null(is_reasoning_model)) {
+
+    if (!is.null(reasoning_effort) || !is.null(max_completion_tokens)) {
+      is_reasoning_model <- TRUE
+      cli::cli_alert_warning(c("Inferred {.var is_reasoning_model} to be {.code TRUE} based on the presence of reasoning parameters."))
+    } else {
+      is_reasoning_model <- FALSE
+    }
+
+  }
+
     if (!is.logical(is_reasoning_model) || is.na(is_reasoning_model)) {
       cli::cli_abort(c("{.var is_reasoning_model} must either be {.var TRUE} or {.var FALSE}."), call = call)
     }
 
-    if ( is_reasoning_model == TRUE) {
+    if (is_reasoning_model == TRUE) {
 
 
 
@@ -246,26 +257,13 @@ gpt.data.frame <- function(source,
 
       ### If reasoning specific parameters exist, error
       if (!is.null(reasoning_effort)) {
-        cli::cli_abort(c("{.var reasoning_effort} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+        cli::cli_abort(c("{.var reasoning_effort} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}."), call = call)
       }
 
       if (!is.null(max_completion_tokens)) {
-        cli::cli_abort(c("{.var max_completion_tokens} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}.", call = call))
+        cli::cli_abort(c("{.var max_completion_tokens} cannot be supplied without {.var is_reasoning_model} being {.code TRUE}."), call = call)
       }
     }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

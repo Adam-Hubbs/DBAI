@@ -54,7 +54,7 @@ llm_generate.data.frame <- function(
     stop = NULL,
     user = NULL,
     is_reasoning_model = NULL,
-    reasoning_effort = 'medium',
+    reasoning_effort = NULL,
     openai_api_key = Sys.getenv("OPENAI_API_KEY"),
     openai_organization = NULL,
     anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
@@ -105,10 +105,6 @@ llm_generate.data.frame <- function(
     }
   }
 
-  # If an argument called model_providers is given, and an argument called model_provider is not given, then pass that to model_provider
-  if (!missing(model_providers) && missing(model_provider)) {
-    model_provider <- model_providers
-  }
 
   # Handle vectorization mapping and explicit vector recycling here rather than in the child functions
   var_list <- c("output", "prompt", "model", "model_provider", "temperature", "top_p", "top_k", "presence_penalty", "frequency_penalty", "max_tokens", "max_completion_tokens", "is_reasoning_model", "reasoning_effort")
@@ -132,6 +128,7 @@ llm_generate.data.frame <- function(
   for (var_name in var_list) {
     assign(var_name, vctrs::vec_recycle(get(var_name), max_len))
   }
+
 
   ### Initialize Dummy Environment for Pass by reference system --
   parentInfo <- new.env()

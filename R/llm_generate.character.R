@@ -53,7 +53,7 @@ llm_generate.character <- function(
   stop = NULL,
   user = NULL,
   is_reasoning_model = NULL,
-  reasoning_effort = 'medium',
+  reasoning_effort = NULL,
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL,
   anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),

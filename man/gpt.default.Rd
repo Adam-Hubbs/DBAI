@@ -20,6 +20,9 @@
   presence_penalty = 0,
   frequency_penalty = 0,
   max_tokens = 4096,
+  max_completion_tokens = NULL,
+  is_reasoning_model = NULL,
+  reasoning_effort = "medium",
   openai_api_key = Sys.getenv("OPENAI_API_KEY"),
   openai_organization = NULL
 )
@@ -54,6 +57,12 @@
 \item{frequency_penalty}{optional; defaults to \code{0}; a length one numeric vector with a value between \code{-2} and \code{2}.}
 
 \item{max_tokens}{optional; defaults to \verb{(4096 - prompt tokens)}; a length one numeric vector with the integer value greater than \code{0}.}
+
+\item{max_completion_tokens}{optional; defaults to \code{NULL}; used in OpenAI reasoning models; a numeric vector with the integer value greater than \code{0}. Specifies the maximum number of tokens to generate for each completion. This includes tokens generated as part of the reasoning process and are not returned to the user.}
+
+\item{is_reasoning_model}{optional; defaults to \code{NULL}. A vector of booleans that specifies if the model is a reasoning model. If \code{TRUE}, the model will be treated as a reasoning model. Reasoning models use different model parameters and are optimized for reasoning tasks. OpenAI only.}
+
+\item{reasoning_effort}{optional; defauls to \code{medium}. A vector of strings that specifies the effort level for the reasoning model. OpenAI only. Must be one of c(\code{low}, \code{medium}, \code{high}).}
 
 \item{openai_api_key}{required; defaults to \code{Sys.getenv("OPENAI_API_KEY")} (i.e., the value is retrieved from the \code{.Renviron} file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.}
 
