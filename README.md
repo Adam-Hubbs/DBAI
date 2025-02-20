@@ -43,7 +43,7 @@ Rate limits are restrictions on how many API calls you can make in a given perio
 DBAI is hosted on github. You can install packages from github by using the `pak::pak()` function. This is the equivalent to installing a package from CRAN using `install.packages()`, and only needs to be done once.
 
 ``` r
-remotes::install_github("Adam-Hubbs/DBAI")
+devtools::install_github("Adam-Hubbs/DBAI")
 ```
 
 To load the package into memory, use the `library()` function as you would a package from CRAN.
@@ -70,82 +70,142 @@ Sys.setenv(
 
 ## Example Data
 
-Let's input some example data and use this function. We'll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called 'demo'. See the `glue` package for how to automate this. Let's take this information and try to predict who they voted for in the 2020 presidential election.
+Let's start with a simple example. Generating a basic completion.
 
 ``` r
-sample_df <- data.frame(
-  year = c(1964, 1998, 1979, 1981),
-  gender = c("Male", "Female", "Male", "Female"),
-  occupation = c("Farmer", "Investment Banker", "Lawyer", "Social Worker"),
-  location = c("Kansas", "New York", "Phoenix", "Baltimore"),
-  race = c("White", "White", "Hispanic", "Black"),
-  religion = c("Evangelical Protestant", "Catholic", "Catholic", "Muslim"),
-  demo = c(
-    "60 year old white man from Kansas. Is an evangelical protestant and a farmer.",
-    "26 year old white female investment banker from New York. Is a Catholic.",
-    "45 year old male lawyer from Phoenix. Is a hispanic catholic.",
-    "43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."))
-    
-  
-  
+constitution <- llm_generate("Tell me about the Constitution of the United States of America.")
+```
+
+If we call `print()` on constitution, we can see the result. If we want all the meta-data, call `summary()`.
+
+DBAI works with a variety of data types. You can pass it character vectors, or dataframe objects. Lets do a character vector example.
+
+``` r
+demographics_vector <- c("60 year old white man from Kansas. Is an evangelical protestant and a farmer.",
+                         "26 year old white female investment banker from New York. Is a Catholic.",
+                         "45 year old black male lawyer from Phoenix. Is an atheist.",
+                         "43 year old black female. Works as a social worker in Baltimore and is a practicing muslim.")
+
+
+
+
 prompt <- "I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."
+
+
+
+vote_choice <- llm_generate(demographics_vector, prompt = prompt, max_tokens = 5)
 ```
 
-With our dataset and our prompt, lets call our function.
+If we pass it a character vector then it will return a character vector (With all the meta-data invisibly attached).
+
+We can also use data frames!
 
 ``` r
-return_obj <- llm_generate(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = c("gpt-3.5-turbo", "gemini-1.5-flash"), max_tokens = 10)
+survey_data <- tibble(id = c(1, 2, 3),
+                      message = c("Guns are great",
+                                  "i think guns are bad",
+                                  "They protect my family and keep the king of england out of my face"))
 
-print(return_obj)
+
+gun_prompt <- "I will give you a statement. I want you to tell me if the overall sentiment is 'Pro-gun' or 'Anti-gun'. Say 'Pro-gun' or 'Anti-gun' only."
+
+
+survey_data1 <- llm_generate(survey_data, input = "message", output = "GunStance", prompt = gun_prompt, model = "gpt-3.5-turbo", max_tokens = 5)
 ```
 
-Here we call out function `llm_generate()` and tell it the source of our data is "sample_df", column of data we want processed is called "demo". We want it to spit out the results in a column called "Vote", the prompt we are using is "prompt", the model is "gpt-3.5-turbo".
+The first argument is the dataframe. Next we have the input column and the output column, and then any model parameters.
 
-Go ahead and run this and examine the results.
-
-By default, the DBAI family of models returns an list of class 'llm_completion'. The first item in the list is the returned Data frame with the new column of results. It then returns the prompt, the model, the model provider, the date it was ran on, and a final object containing miscellaneous meta-data that is specific to each provider. llm_completion objects provide a way to track various meta-data.
-
-We can also omit this information and just return the dataframe directly without any additional information. To do this set `return_invisible = TRUE`.
+`DBAI` functions are vectorized and can take multiple prompts or model parameters at the same time and return multiple results. Let's extend our first example. Perhaps we want to run this with both gpt-3.5 and gpt-4 to compare the results. That's as easy as passing a c() with the models you want in the model parameter.
 
 ``` r
-result_df <- gpt(source = sample_df, input = "demo", output = "Vote", prompt = prompt, model = "gpt-3.5-turbo", return_invisible = TRUE)
 
-print(result_df)
+# You can easily compare with different models or model parameters.
+# Lets look at two different models
+survey_data2 <- llm_generate(survey_data, input = "message", output = "GunStance", prompt = gun_prompt, model = c("gpt-3.5-turbo", "gpt-4"), max_tokens = 5)
+
+
+
+
+# Lets change the temperature
+survey_data3 <- llm_generate(survey_data, input = "message", output = c("GunStanceMidTemp", "GunStanceLowTemp"), prompt = gun_prompt, model = "gpt-3.5-turbo", max_tokens = 5, temperature = c(1, 0.1))
+
 ```
 
-`DBAI` functions are vectorized and can take multiple prompts at the same time and return multiple results. Let's extend our first example.
+Now lets look at using two prompts at the same time. Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.
 
 ``` r
-sample_df <- data.frame(
-  year = c(1964, 1998, 1979, 1981),
-  gender = c("Male", "Female", "Male", "Female"),
-  occupation = c("Farmer", "Investment Banker", "Lawyer", "Social Worker"),
-  location = c("Kansas", "New York", "Phoenix", "Baltimore"),
-  race = c("White", "White", "Hispanic", "Black"),
-  religion = c("Evangelical Protestant", "Catholic", "Catholic", "Muslim"),
-  demo = c(
-    "60 year old white man from Kansas. Is an evangelical protestant and a farmer.",
-    "26 year old white female investment banker from New York. Is a Catholic.",
-    "45 year old male lawyer from Phoenix. Is a hispanic catholic.",
-    "43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."))
-    
+
+df <- data.frame(
+  year = c(60, 26, 45, 43),
+  demographics = demographics_vector
+)
+
 prompt <- "I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."
+
+
+
+
 
 prompt2 <- "I will give you demographic information. I want you to predict what political party they identify with or lean torwards. Make your best guess if you are unsure. Say 'Republican' or 'Democratic' only. Do not say anything else."
 
+
+
+
+
 prompts <- c(prompt, prompt2)
+
+
+
+
 outputVec <- c("Vote", "Party")
-```
 
-Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.
 
-``` r
-sample_df <- gpt(sample_df, input = "demo", output = outputVec, prompt = prompts, model = "gpt-3.5-turbo", return_invisible = TRUE)
 
-print(sample_df)
+
+df <- llm_generate(df, input = "demographics", prompt = prompts, max_tokens = 10, output = outputVec)
 ```
 
 We only made a few minor changes to the function call. This time we pass a vector of outputs and a vector of prompts. When we run this chunk we will now get two columns of data.
+
+## Conditional Prompts
+
+Let's try a bit more complicated example. Here we will conditionally use one prompt or another based on the data in the data frame.
+
+Imagine we asked a question about whether education spending is necessary or not. We code the respondent as `For` if they agree that more education spending is necessary and `Against` if they disagree. Here we will use an LLM to attempt to use motivational interviewing to persuade the respondent in a way that contradicts their views.
+
+``` r
+library(tidyverse)
+
+
+prompt1 <- "I will give you some demographic information about a person. I want you to try to presuade them that more education spending is nesessary using motivational interviewing techniques."
+
+
+
+prompt2 <- "I will give you some demographic information about a person. I want you to try to presuade them that more education spending is NOT nesessary using motivational interviewing techniques."
+
+
+
+
+education_df <- tibble(stance = c("For", "Against", "Against", "For"), demographics = c(
+  "28 year old white man from Seattle who works as an architect.",
+  "67 year old black woman from Atlanta who is retired.",
+  "43 year old white woman from New York who works as a banker.",
+  "36 year old hispanic man from San Diego who works as a software engineer."
+))
+
+
+
+
+education_df <- education_df |>
+  mutate(persuasion = case_when(
+    stance == "Against" ~ llm_generate(demographics, prompt = prompt1),
+    stance == "For" ~ llm_generate(demographics, prompt = prompt2),
+    TRUE ~ NA))
+```
+
+DBAI functions work within mutate and control flow statements. That means you can conditionally use prompts on certain observations.
+
+## Model Arguments
 
 Lets take a look at some of the other argument options. We will discuss four common parameters for Large Language Models, `temperature`, `top_p`, `top_k`, and `max_tokens`. The first three of these parameters are ways to change how deterministic or random the response will be., and the last deals with how long the response is.
 
@@ -174,25 +234,6 @@ It is not advised to use temperature, top_p, or top_k at the same time. Some mod
 
 `Max_tokens` determines how long the maximum response will be. Some models count both the input and output tokens as one, and some only count the output tokens. Setting the max_tokens to a low number like 5 will restrict the response to only a couple words while leaving the max_tokens blank or setting it to a large number like 4,000 will enable the LLM to respond with paragraphs of analysis.
 
-## Another Example
-
-Let's look at another example. One where AI tools can really shine - Textual Analysis!
-
-``` r
-messages <- data.frame(id = c(1, 2, 1), 
-                       message = c("Guns are great", 
-                                   "i think guns are bad", 
-                                   "They protect my family and keep the king of england out of my face"))
-
-good <- "I will give you a statement. I want you to tell me if the overall sentiment is 'Pro-gun' or 'Anti-gun'. Say 'Pro-gun' or 'Anti-gun' only."
-
-messages <- gpt(messages, input = "message", output = "GunStance", prompt = good, model = "gpt-3.5-turbo", max_tokens = 5, return_invisible = TRUE)
-
-View(messages)
-```
-
-Here we ask it to categorize statements into either Pro-gun or Anti-gun stances.
-
 ## Advanced Features
 
 Let's look at some of the other features we haven't talked about yet.
@@ -201,7 +242,7 @@ Sometimes you just want to run the same thing a couple times just to make sure. 
 
 You may have noticed that there is a handy progress bar that pops up as you run the functions. It shows you helpful information like the number of completed calls out of the total number of calls, and the estimated time remaining. If like to live in suspense however, it is possible to disable this. Just set `progress = FALSE`.
 
-One of the most useful arguments is `repair`. This special repair mode seeks to solve common problems that you will most likely encounter. Perhaps you get rate-limited for trying to run a huge dataset all at once, or maybe OpenAI's servers are busy and they deny your request. For whatever reason you have an error popping up when the function finishes. Do Not Fret! Repair mode is here to save the day! Simply rerun the function with `repair = TRUE`, and the function will pick up right where it left off. Repair mode works regardless of if `return_invisible` was set to True or False (i.e. you can pass it either a dataframe or a llm_completion object) and it will figure it out for you! One caveat thought, the progress bar isn't yet compatible with repair mode, so you won't get to see the pretty bar inch across the screen.
+One of the most useful arguments is `repair`. This special repair mode seeks to solve common problems that you will most likely encounter. Perhaps you get rate-limited for trying to run a huge dataset all at once, or maybe OpenAI's servers are busy and they deny your request. For whatever reason you have an error popping up when the function finishes. Do Not Fret! Repair mode is here to save the day! Simply rerun the function with `repair = TRUE`, and the function will pick up right where it left off! One caveat thought, the progress bar isn't yet compatible with repair mode, so you won't get to see the pretty bar inch across the screen.
 
 ## Documentation
 
