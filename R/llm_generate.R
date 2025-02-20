@@ -16,12 +16,15 @@
 #' @param presence_penalty optional; defaults to `0`; a numeric vector with a value between `-2` and `2`.
 #' @param frequency_penalty optional; defaults to `0`; a numeric vector with a value between `-2` and `2`.
 #' @param max_tokens optional; defaults to `(4096 - prompt tokens)`; a numeric vector with the integer value greater than `0`.
+#' @param max_completion_tokens optional; defaults to `NULL`; used in OpenAI reasoning models; a numeric vector with the integer value greater than `0`. Specifies the maximum number of tokens to generate for each completion. This includes tokens generated as part of the reasoning process and are not returned to the user.
 #' @param logit_bias optional; defaults to `NULL`; a JSON object that maps tokens (as specified by their toekn ID in the tokenizer) to an associated bias value. -100 to 100.
 #' @param logprobs optional; defaults to `FALSE`. If `TRUE`, the API will return log probabilities for each token.
 #' @param top_logprobs optional; An integer between `0` and `20`. Specifies the number of most likely tokens to return at each token position. The API will return log probabilities for the top `top_logprobs` tokens at each position. The `logprobs` must be set to `TRUE` to use this parameter.
 #' @param seed optional; defaults to `NULL`. An integer that allows for reproducible results when using the same seed. (BETA)
 #' @param stop optional; Defaults to `NULL`. A vector of strings (Up to length 4) of sequences where the API will stop generating further tokens.
 #' @param user optional; defaults to `NULL`. A string that specifies the user ID to associate with the completion.
+#' @param is_reasoning_model optional; defaults to `NULL`. A vector of booleans that specifies if the model is a reasoning model. If `TRUE`, the model will be treated as a reasoning model. Reasoning models use different model parameters and are optimized for reasoning tasks. OpenAI only.
+#' @param reasoning_effort optional; defauls to `medium`. A vector of strings that specifies the effort level for the reasoning model. OpenAI only. Must be one of c(`low`, `medium`, `high`).
 #' @param openai_api_key optional; defaults to `Sys.getenv("OPENAI_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies OpenAI API key. Must obtain API Key from OpenAI.
 #' @param openai_organization optional; defaults to `NULL`; a length one character vector. Specifies OpenAI organization.
 #' @param anthropic_api_key optional; defaults to `Sys.getenv("ANTHROPIC_API_KEY")` (i.e., the value is retrieved from the `.Renviron` file); a length one character vector. Specifies Anthropic API key.
@@ -34,6 +37,7 @@ llm_generate <- function(source,
                 prompt,
                 model = "gpt-3.5-turbo",
                 model_provider = NA,
+                max_completion_tokens = NULL,
                 return_invisible = FALSE,
                 iterations = 1,
                 repair = FALSE,
@@ -46,6 +50,8 @@ llm_generate <- function(source,
                 presence_penalty = 0,
                 frequency_penalty = 0,
                 max_tokens = 4096,
+                is_reasoning_model = NULL,
+                reasoning_effort = 'medium',
                 openai_api_key = Sys.getenv("OPENAI_API_KEY"),
                 openai_organization = NULL,
                 anthropic_api_key = Sys.getenv("ANTHROPIC_API_KEY"),
