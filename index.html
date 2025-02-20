@@ -76,7 +76,7 @@
 </h2>
 <p>DBAI is hosted on github. You can install packages from github by using the <code><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak::pak()</a></code> function. This is the equivalent to installing a package from CRAN using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, and only needs to be done once.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Adam-Hubbs/DBAI"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Adam-Hubbs/DBAI"</span><span class="op">)</span></span></code></pre></div>
 <p>To load the package into memory, use the <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> function as you would a package from CRAN.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Adam-Hubbs/DBAI" class="external-link">DBAI</a></span><span class="op">)</span></span></code></pre></div>
@@ -97,64 +97,122 @@
 <div class="section level2">
 <h2 id="example-data">Example Data<a class="anchor" aria-label="anchor" href="#example-data"></a>
 </h2>
-<p>Let’s input some example data and use this function. We’ll start with a dataset containing demographic information. We have age, gender, occupation, location, race, and religion information on individuals. For this example, we have taken this information and condensed it into text form in a column called ‘demo’. See the <code>glue</code> package for how to automate this. Let’s take this information and try to predict who they voted for in the 2020 presidential election.</p>
+<p>Let’s start with a simple example. Generating a basic completion.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1964</span>, <span class="fl">1998</span>, <span class="fl">1979</span>, <span class="fl">1981</span><span class="op">)</span>,</span>
-<span>  gender <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
-<span>  occupation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Farmer"</span>, <span class="st">"Investment Banker"</span>, <span class="st">"Lawyer"</span>, <span class="st">"Social Worker"</span><span class="op">)</span>,</span>
-<span>  location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Kansas"</span>, <span class="st">"New York"</span>, <span class="st">"Phoenix"</span>, <span class="st">"Baltimore"</span><span class="op">)</span>,</span>
-<span>  race <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"White"</span>, <span class="st">"White"</span>, <span class="st">"Hispanic"</span>, <span class="st">"Black"</span><span class="op">)</span>,</span>
-<span>  religion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Evangelical Protestant"</span>, <span class="st">"Catholic"</span>, <span class="st">"Catholic"</span>, <span class="st">"Muslim"</span><span class="op">)</span>,</span>
-<span>  demo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"60 year old white man from Kansas. Is an evangelical protestant and a farmer."</span>,</span>
-<span>    <span class="st">"26 year old white female investment banker from New York. Is a Catholic."</span>,</span>
-<span>    <span class="st">"45 year old male lawyer from Phoenix. Is a hispanic catholic."</span>,</span>
-<span>    <span class="st">"43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."</span><span class="op">)</span><span class="op">)</span></span>
-<span>    </span>
-<span>  </span>
-<span>  </span>
-<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</span></span></code></pre></div>
-<p>With our dataset and our prompt, lets call our function.</p>
+<code class="sourceCode R"><span><span class="va">constitution</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="st">"Tell me about the Constitution of the United States of America."</span><span class="op">)</span></span></code></pre></div>
+<p>If we call <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> on constitution, we can see the result. If we want all the meta-data, call <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p>
+<p>DBAI works with a variety of data types. You can pass it character vectors, or dataframe objects. Lets do a character vector example.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">return_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span>source <span class="op">=</span> <span class="va">sample_df</span>, input <span class="op">=</span> <span class="st">"demo"</span>, output <span class="op">=</span> <span class="st">"Vote"</span>, prompt <span class="op">=</span> <span class="va">prompt</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gpt-3.5-turbo"</span>, <span class="st">"gemini-1.5-flash"</span><span class="op">)</span>, max_tokens <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">demographics_vector</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"60 year old white man from Kansas. Is an evangelical protestant and a farmer."</span>,</span>
+<span>                         <span class="st">"26 year old white female investment banker from New York. Is a Catholic."</span>,</span>
+<span>                         <span class="st">"45 year old black male lawyer from Phoenix. Is an atheist."</span>,</span>
+<span>                         <span class="st">"43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">return_obj</span><span class="op">)</span></span></code></pre></div>
-<p>Here we call out function <code><a href="reference/llm_generate.html">llm_generate()</a></code> and tell it the source of our data is “sample_df”, column of data we want processed is called “demo”. We want it to spit out the results in a column called “Vote”, the prompt we are using is “prompt”, the model is “gpt-3.5-turbo”.</p>
-<p>Go ahead and run this and examine the results.</p>
-<p>By default, the DBAI family of models returns an list of class ‘llm_completion’. The first item in the list is the returned Data frame with the new column of results. It then returns the prompt, the model, the model provider, the date it was ran on, and a final object containing miscellaneous meta-data that is specific to each provider. llm_completion objects provide a way to track various meta-data.</p>
-<p>We can also omit this information and just return the dataframe directly without any additional information. To do this set <code>return_invisible = TRUE</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gpt.html">gpt</a></span><span class="op">(</span>source <span class="op">=</span> <span class="va">sample_df</span>, input <span class="op">=</span> <span class="st">"demo"</span>, output <span class="op">=</span> <span class="st">"Vote"</span>, prompt <span class="op">=</span> <span class="va">prompt</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, return_invisible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_df</span><span class="op">)</span></span></code></pre></div>
-<p><code>DBAI</code> functions are vectorized and can take multiple prompts at the same time and return multiple results. Let’s extend our first example.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1964</span>, <span class="fl">1998</span>, <span class="fl">1979</span>, <span class="fl">1981</span><span class="op">)</span>,</span>
-<span>  gender <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
-<span>  occupation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Farmer"</span>, <span class="st">"Investment Banker"</span>, <span class="st">"Lawyer"</span>, <span class="st">"Social Worker"</span><span class="op">)</span>,</span>
-<span>  location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Kansas"</span>, <span class="st">"New York"</span>, <span class="st">"Phoenix"</span>, <span class="st">"Baltimore"</span><span class="op">)</span>,</span>
-<span>  race <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"White"</span>, <span class="st">"White"</span>, <span class="st">"Hispanic"</span>, <span class="st">"Black"</span><span class="op">)</span>,</span>
-<span>  religion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Evangelical Protestant"</span>, <span class="st">"Catholic"</span>, <span class="st">"Catholic"</span>, <span class="st">"Muslim"</span><span class="op">)</span>,</span>
-<span>  demo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"60 year old white man from Kansas. Is an evangelical protestant and a farmer."</span>,</span>
-<span>    <span class="st">"26 year old white female investment banker from New York. Is a Catholic."</span>,</span>
-<span>    <span class="st">"45 year old male lawyer from Phoenix. Is a hispanic catholic."</span>,</span>
-<span>    <span class="st">"43 year old black female. Works as a social worker in Baltimore and is a practicing muslim."</span><span class="op">)</span><span class="op">)</span></span>
-<span>    </span>
+<span></span>
+<span></span>
 <span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">vote_choice</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">demographics_vector</span>, prompt <span class="op">=</span> <span class="va">prompt</span>, max_tokens <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p>If we pass it a character vector then it will return a character vector (With all the meta-data invisibly attached).</p>
+<p>We can also use data frames!</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">survey_data</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                      message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Guns are great"</span>,</span>
+<span>                                  <span class="st">"i think guns are bad"</span>,</span>
+<span>                                  <span class="st">"They protect my family and keep the king of england out of my face"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">gun_prompt</span> <span class="op">&lt;-</span> <span class="st">"I will give you a statement. I want you to tell me if the overall sentiment is 'Pro-gun' or 'Anti-gun'. Say 'Pro-gun' or 'Anti-gun' only."</span></span>
+<span></span>
+<span></span>
+<span><span class="va">survey_data1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">survey_data</span>, input <span class="op">=</span> <span class="st">"message"</span>, output <span class="op">=</span> <span class="st">"GunStance"</span>, prompt <span class="op">=</span> <span class="va">gun_prompt</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, max_tokens <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p>The first argument is the dataframe. Next we have the input column and the output column, and then any model parameters.</p>
+<p><code>DBAI</code> functions are vectorized and can take multiple prompts or model parameters at the same time and return multiple results. Let’s extend our first example. Perhaps we want to run this with both gpt-3.5 and gpt-4 to compare the results. That’s as easy as passing a c() with the models you want in the model parameter.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># You can easily compare with different models or model parameters.</span></span>
+<span><span class="co"># Lets look at two different models</span></span>
+<span><span class="va">survey_data2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">survey_data</span>, input <span class="op">=</span> <span class="st">"message"</span>, output <span class="op">=</span> <span class="st">"GunStance"</span>, prompt <span class="op">=</span> <span class="va">gun_prompt</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gpt-3.5-turbo"</span>, <span class="st">"gpt-4"</span><span class="op">)</span>, max_tokens <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Lets change the temperature</span></span>
+<span><span class="va">survey_data3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">survey_data</span>, input <span class="op">=</span> <span class="st">"message"</span>, output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GunStanceMidTemp"</span>, <span class="st">"GunStanceLowTemp"</span><span class="op">)</span>, prompt <span class="op">=</span> <span class="va">gun_prompt</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, max_tokens <span class="op">=</span> <span class="fl">5</span>, temperature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Now lets look at using two prompts at the same time. Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span>, <span class="fl">26</span>, <span class="fl">45</span>, <span class="fl">43</span><span class="op">)</span>,</span>
+<span>  demographics <span class="op">=</span> <span class="va">demographics_vector</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict who they voted for in the 2020 Presidential election. Make your best guess if you are unsure. Say 'Trump' or 'Biden' only. Do not say anything else."</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
 <span></span>
 <span><span class="va">prompt2</span> <span class="op">&lt;-</span> <span class="st">"I will give you demographic information. I want you to predict what political party they identify with or lean torwards. Make your best guess if you are unsure. Say 'Republican' or 'Democratic' only. Do not say anything else."</span></span>
 <span></span>
-<span><span class="va">prompts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">prompt</span>, <span class="va">prompt2</span><span class="op">)</span></span>
-<span><span class="va">outputVec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vote"</span>, <span class="st">"Party"</span><span class="op">)</span></span></code></pre></div>
-<p>Here, we ask it to not only predict the Vote choice, but also predict the Party affiliation of the respondents.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gpt.html">gpt</a></span><span class="op">(</span><span class="va">sample_df</span>, input <span class="op">=</span> <span class="st">"demo"</span>, output <span class="op">=</span> <span class="va">outputVec</span>, prompt <span class="op">=</span> <span class="va">prompts</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, return_invisible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sample_df</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">prompts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">prompt</span>, <span class="va">prompt2</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">outputVec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vote"</span>, <span class="st">"Party"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">df</span>, input <span class="op">=</span> <span class="st">"demographics"</span>, prompt <span class="op">=</span> <span class="va">prompts</span>, max_tokens <span class="op">=</span> <span class="fl">10</span>, output <span class="op">=</span> <span class="va">outputVec</span><span class="op">)</span></span></code></pre></div>
 <p>We only made a few minor changes to the function call. This time we pass a vector of outputs and a vector of prompts. When we run this chunk we will now get two columns of data.</p>
+</div>
+<div class="section level2">
+<h2 id="conditional-prompts">Conditional Prompts<a class="anchor" aria-label="anchor" href="#conditional-prompts"></a>
+</h2>
+<p>Let’s try a bit more complicated example. Here we will conditionally use one prompt or another based on the data in the data frame.</p>
+<p>Imagine we asked a question about whether education spending is necessary or not. We code the respondent as <code>For</code> if they agree that more education spending is necessary and <code>Against</code> if they disagree. Here we will use an LLM to attempt to use motivational interviewing to persuade the respondent in a way that contradicts their views.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">prompt1</span> <span class="op">&lt;-</span> <span class="st">"I will give you some demographic information about a person. I want you to try to presuade them that more education spending is nesessary using motivational interviewing techniques."</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">prompt2</span> <span class="op">&lt;-</span> <span class="st">"I will give you some demographic information about a person. I want you to try to presuade them that more education spending is NOT nesessary using motivational interviewing techniques."</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">education_df</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>stance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"For"</span>, <span class="st">"Against"</span>, <span class="st">"Against"</span>, <span class="st">"For"</span><span class="op">)</span>, demographics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"28 year old white man from Seattle who works as an architect."</span>,</span>
+<span>  <span class="st">"67 year old black woman from Atlanta who is retired."</span>,</span>
+<span>  <span class="st">"43 year old white woman from New York who works as a banker."</span>,</span>
+<span>  <span class="st">"36 year old hispanic man from San Diego who works as a software engineer."</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="va">education_df</span> <span class="op">&lt;-</span> <span class="va">education_df</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>persuasion <span class="op">=</span> <span class="fu">case_when</span><span class="op">(</span></span>
+<span>    <span class="va">stance</span> <span class="op">==</span> <span class="st">"Against"</span> <span class="op">~</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">demographics</span>, prompt <span class="op">=</span> <span class="va">prompt1</span><span class="op">)</span>,</span>
+<span>    <span class="va">stance</span> <span class="op">==</span> <span class="st">"For"</span> <span class="op">~</span> <span class="fu"><a href="reference/llm_generate.html">llm_generate</a></span><span class="op">(</span><span class="va">demographics</span>, prompt <span class="op">=</span> <span class="va">prompt2</span><span class="op">)</span>,</span>
+<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>DBAI functions work within mutate and control flow statements. That means you can conditionally use prompts on certain observations.</p>
+</div>
+<div class="section level2">
+<h2 id="model-arguments">Model Arguments<a class="anchor" aria-label="anchor" href="#model-arguments"></a>
+</h2>
 <p>Lets take a look at some of the other argument options. We will discuss four common parameters for Large Language Models, <code>temperature</code>, <code>top_p</code>, <code>top_k</code>, and <code>max_tokens</code>. The first three of these parameters are ways to change how deterministic or random the response will be., and the last deals with how long the response is.</p>
 <p><code>Temperature</code> specifies how repetitive and analytical , or creative and random the responses are. For our models, temperature runs between 0 (Analytical) and 2 (Creative). Setting the temperature too low can lead to the exact same results for many calls, regardless of data. It can also be hyper-sensitive to examples in the prompt. Setting the temperature too high can lead the LLM to hallucinate and make up things that aren’t real. By default, the temperature is 1, a happy medium. You may want to play around with temperature to suit your specific needs.</p>
 <p><code>Top_p</code> and <code>top_k</code> both have to do with sampling methods that the LLM uses. In order to understand this, let’s take a brief refresher on how Large Language Models work in the first place.</p>
@@ -205,29 +263,12 @@
 <p><code>Max_tokens</code> determines how long the maximum response will be. Some models count both the input and output tokens as one, and some only count the output tokens. Setting the max_tokens to a low number like 5 will restrict the response to only a couple words while leaving the max_tokens blank or setting it to a large number like 4,000 will enable the LLM to respond with paragraphs of analysis.</p>
 </div>
 <div class="section level2">
-<h2 id="another-example">Another Example<a class="anchor" aria-label="anchor" href="#another-example"></a>
-</h2>
-<p>Let’s look at another example. One where AI tools can really shine - Textual Analysis!</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">messages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, </span>
-<span>                       message <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Guns are great"</span>, </span>
-<span>                                   <span class="st">"i think guns are bad"</span>, </span>
-<span>                                   <span class="st">"They protect my family and keep the king of england out of my face"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">good</span> <span class="op">&lt;-</span> <span class="st">"I will give you a statement. I want you to tell me if the overall sentiment is 'Pro-gun' or 'Anti-gun'. Say 'Pro-gun' or 'Anti-gun' only."</span></span>
-<span></span>
-<span><span class="va">messages</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gpt.html">gpt</a></span><span class="op">(</span><span class="va">messages</span>, input <span class="op">=</span> <span class="st">"message"</span>, output <span class="op">=</span> <span class="st">"GunStance"</span>, prompt <span class="op">=</span> <span class="va">good</span>, model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span>, max_tokens <span class="op">=</span> <span class="fl">5</span>, return_invisible <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="va">messages</span><span class="op">)</span></span></code></pre></div>
-<p>Here we ask it to categorize statements into either Pro-gun or Anti-gun stances.</p>
-</div>
-<div class="section level2">
 <h2 id="advanced-features">Advanced Features<a class="anchor" aria-label="anchor" href="#advanced-features"></a>
 </h2>
 <p>Let’s look at some of the other features we haven’t talked about yet.</p>
 <p>Sometimes you just want to run the same thing a couple times just to make sure. Perhaps you are asking Claude is there is personally identifiable information in a certain field, or maybe you want to have Gemini deduce a topic from a long comment. For some tasks doing it multiple times is a good indication that your results are internally valid. This is where the <code>iterations</code> argument comes in. You can pass iterations any integer value and the function will rerun the call that many times. It will add a _X at the end of the output column for each iteration _2 for the second, _3 for the third, etc. This can stack with having multiple prompts, so thinking back to the Vote and Party example if we also set iterations to equal 2, then it would run both Vote and Party twice.</p>
 <p>You may have noticed that there is a handy progress bar that pops up as you run the functions. It shows you helpful information like the number of completed calls out of the total number of calls, and the estimated time remaining. If like to live in suspense however, it is possible to disable this. Just set <code>progress = FALSE</code>.</p>
-<p>One of the most useful arguments is <code>repair</code>. This special repair mode seeks to solve common problems that you will most likely encounter. Perhaps you get rate-limited for trying to run a huge dataset all at once, or maybe OpenAI’s servers are busy and they deny your request. For whatever reason you have an error popping up when the function finishes. Do Not Fret! Repair mode is here to save the day! Simply rerun the function with <code>repair = TRUE</code>, and the function will pick up right where it left off. Repair mode works regardless of if <code>return_invisible</code> was set to True or False (i.e. you can pass it either a dataframe or a llm_completion object) and it will figure it out for you! One caveat thought, the progress bar isn’t yet compatible with repair mode, so you won’t get to see the pretty bar inch across the screen.</p>
+<p>One of the most useful arguments is <code>repair</code>. This special repair mode seeks to solve common problems that you will most likely encounter. Perhaps you get rate-limited for trying to run a huge dataset all at once, or maybe OpenAI’s servers are busy and they deny your request. For whatever reason you have an error popping up when the function finishes. Do Not Fret! Repair mode is here to save the day! Simply rerun the function with <code>repair = TRUE</code>, and the function will pick up right where it left off! One caveat thought, the progress bar isn’t yet compatible with repair mode, so you won’t get to see the pretty bar inch across the screen.</p>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
