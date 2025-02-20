@@ -55,6 +55,9 @@
 <span>  presence_penalty <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  frequency_penalty <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  max_tokens <span class="op">=</span> <span class="fl">4096</span>,</span>
+<span>  max_completion_tokens <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  is_reasoning_model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  reasoning_effort <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  openai_api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPENAI_API_KEY"</span><span class="op">)</span>,</span>
 <span>  openai_organization <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -124,6 +127,18 @@
 
 <dt id="arg-max-tokens">max_tokens<a class="anchor" aria-label="anchor" href="#arg-max-tokens"></a></dt>
 <dd><p>optional; defaults to <code>(4096 - prompt tokens)</code>; a length one numeric vector with the integer value greater than <code>0</code>.</p></dd>
+
+
+<dt id="arg-max-completion-tokens">max_completion_tokens<a class="anchor" aria-label="anchor" href="#arg-max-completion-tokens"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>; used in OpenAI reasoning models; a numeric vector with the integer value greater than <code>0</code>. Specifies the maximum number of tokens to generate for each completion. This includes tokens generated as part of the reasoning process and are not returned to the user.</p></dd>
+
+
+<dt id="arg-is-reasoning-model">is_reasoning_model<a class="anchor" aria-label="anchor" href="#arg-is-reasoning-model"></a></dt>
+<dd><p>optional; defaults to <code>NULL</code>. A vector of booleans that specifies if the model is a reasoning model. If <code>TRUE</code>, the model will be treated as a reasoning model. Reasoning models use different model parameters and are optimized for reasoning tasks. OpenAI only.</p></dd>
+
+
+<dt id="arg-reasoning-effort">reasoning_effort<a class="anchor" aria-label="anchor" href="#arg-reasoning-effort"></a></dt>
+<dd><p>optional; defauls to <code>medium</code>. A vector of strings that specifies the effort level for the reasoning model. OpenAI only. Must be one of c(<code>low</code>, <code>medium</code>, <code>high</code>).</p></dd>
 
 
 <dt id="arg-openai-api-key">openai_api_key<a class="anchor" aria-label="anchor" href="#arg-openai-api-key"></a></dt>
