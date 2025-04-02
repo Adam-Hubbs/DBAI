@@ -140,6 +140,7 @@ llm_generate.data.frame <- function(
   parentInfo$baseCall <- evalq(match.call(expand.dots = FALSE), parent.frame(1))
   parentInfo$call <- match.call.defaults()
   parentInfo$llm_generate <- TRUE
+  parentInfo$prompt <- FALSE
 
   ### Initialize Progress Bar -----------------------------
   if(repair == TRUE && progress == TRUE) {
@@ -154,6 +155,11 @@ llm_generate.data.frame <- function(
     )
   }
 
+  if('prompt' %in% colnames(source)){
+    parentInfo$prompt <- TRUE
+    source <- source %>%
+    rename(prompts = prompt)
+    }
 
   ### Add all variables into these calls, not just OpenAI ones.
   ### Main Loop ----------------------------------
@@ -174,7 +180,7 @@ llm_generate.data.frame <- function(
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = .env$prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h])
+        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h])
       }
     }
   } else {
@@ -193,15 +199,20 @@ llm_generate.data.frame <- function(
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = .env$prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h]))
+          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h]))
       }
     }
   }
 
   ### Clean up dataframe -----------------------------
+if(parentInfo$prompt == TRUE){
+  source <- source |>
+    dplyr::ungroup() |>
+    rename(prompt = prompts)
+} else {
   source <- source |>
     dplyr::ungroup()
-
+}
   ### Warnings and Messages ---------------------------
   if(parentInfo$firstLineError > 0) {
     cli::cli_alert_warning("First Error Located in Row: {parentInfo$firstLineError}")
