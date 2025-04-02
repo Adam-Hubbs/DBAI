@@ -104,7 +104,7 @@ llm_generate.data.frame <- function(
       model_provider <- providers
     }
   }
-
+   
 
   # Handle vectorization mapping and explicit vector recycling here rather than in the child functions
   var_list <- c("output", "prompt", "model", "model_provider", "temperature", "top_p", "top_k", "presence_penalty", "frequency_penalty", "max_tokens", "max_completion_tokens", "is_reasoning_model", "reasoning_effort")
@@ -174,7 +174,7 @@ llm_generate.data.frame <- function(
           any(is.na(row) | row == "" | row == " " | row == "NA")
         })
         na_input <- source[[input]][na_index]
-        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h])
+        source[[outputcol]][na_index] <- llm_generate(source = na_input, prompt = .env$prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h])
       }
     }
   } else {
@@ -193,7 +193,7 @@ llm_generate.data.frame <- function(
           outputcol <- paste0(outputcol, "_I", iter)
         }
         source <- source |>
-          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h]))
+          dplyr::mutate(!!outputcol := llm_generate(source = !!sym(input), prompt = .env$prompt[h], progress = progress, model = model[h], temperature = temperature[h], top_p = top_p[h], presence_penalty = presence_penalty[h], frequency_penalty = frequency_penalty[h], max_tokens = max_tokens[h], openai_organization = openai_organization, anthropic_version = anthropic_version, parentInfo = parentInfo, model_provider = model_provider[h], is_reasoning_model = is_reasoning_model[h], reasoning_effort = reasoning_effort[h], max_completion_tokens = max_completion_tokens[h]))
       }
     }
   }
