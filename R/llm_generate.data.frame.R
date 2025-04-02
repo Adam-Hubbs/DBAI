@@ -104,7 +104,7 @@ llm_generate.data.frame <- function(
       model_provider <- providers
     }
   }
-
+   
 
   # Handle vectorization mapping and explicit vector recycling here rather than in the child functions
   var_list <- c("output", "prompt", "model", "model_provider", "temperature", "top_p", "top_k", "presence_penalty", "frequency_penalty", "max_tokens", "max_completion_tokens", "is_reasoning_model", "reasoning_effort")
@@ -140,6 +140,7 @@ llm_generate.data.frame <- function(
   parentInfo$baseCall <- evalq(match.call(expand.dots = FALSE), parent.frame(1))
   parentInfo$call <- match.call.defaults()
   parentInfo$llm_generate <- TRUE
+  parentInfo$prompt <- FALSE
 
   ### Initialize Progress Bar -----------------------------
   if(repair == TRUE && progress == TRUE) {
@@ -154,6 +155,11 @@ llm_generate.data.frame <- function(
     )
   }
 
+  if('prompt' %in% colnames(source)){
+    parentInfo$prompt <- TRUE
+    source <- source %>%
+    rename(prompts = prompt)
+    }
 
   ### Add all variables into these calls, not just OpenAI ones.
   ### Main Loop ----------------------------------
@@ -199,9 +205,14 @@ llm_generate.data.frame <- function(
   }
 
   ### Clean up dataframe -----------------------------
+if(parentInfo$prompt == TRUE){
+  source <- source |>
+    dplyr::ungroup() |>
+    rename(prompt = prompts)
+} else {
   source <- source |>
     dplyr::ungroup()
-
+}
   ### Warnings and Messages ---------------------------
   if(parentInfo$firstLineError > 0) {
     cli::cli_alert_warning("First Error Located in Row: {parentInfo$firstLineError}")
